@@ -6,4 +6,4 @@
 
 - 在线阅读地址：https://alex_taotao.gitee.io/mynotes
 - Github：https://github.com/GrimmTao/MyNotes
-- 码云： https://github.com/GrimmTao/MyNotes 
+- 码云： https://gitee.com/Alex_taotao/MyNotes 
