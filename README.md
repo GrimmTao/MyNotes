@@ -4,6 +4,6 @@
 
 ### 我的笔记地址
 
-- 在线阅读地址：https://snailclimb.gitee.io/javaguide-interview/#/
-- Github：https://github.com/Snailclimb/JavaGuide-Interview
-- 码云：https://github.com/GrimmTao/MyNotes
+- 在线阅读地址：https://alex_taotao.gitee.io/mynotes
+- Github：https://github.com/GrimmTao/MyNotes
+- 码云： https://github.com/GrimmTao/MyNotes 
