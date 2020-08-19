@@ -4,6 +4,8 @@
 
 ### 我的笔记地址
 
-- 在线阅读地址：https://alex_taotao.gitee.io/mynotes
+- 在线阅读地址-Gitee: https://alex_taotao.gitee.io/mynotes
+
+  在线阅读地址-GitHub: https://grimmtao.github.io/MyNotes/
 - Github：https://github.com/GrimmTao/MyNotes
 - 码云： https://gitee.com/Alex_taotao/MyNotes 
