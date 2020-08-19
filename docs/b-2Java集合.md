@@ -2,10 +2,6 @@
 
 ## 2.2 Java集合
 
-> 作者：Guide哥。
->
-> **介绍:** Github 70k Star 项目  **[JavaGuide](https://github.com/Snailclimb/JavaGuide)**（公众号同名） 作者。每周都会在公众号更新一些自己原创干货。公众号后台回复“1”领取Java工程师必备学习资料+面试突击pdf。
-
 ### 2.2.1 说说List,Set,Map三者的区别？
 
 - **List(对付顺序的好帮手)：** List接口存储一组不唯一（可以有多个元素引用相同的对象），有序的对象
