@@ -1,6 +1,6 @@
-# 一、Spring Boot 入门
+# 一   Spring Boot 入门
 
-### 1、MAVEN设置；
+### 1      MAVEN设置
 
 给maven 的settings.xml配置文件的profiles标签添加
 
@@ -19,7 +19,7 @@
 </profile>
 ```
 
-## 4、Spring Boot HelloWorld
+## 2   Spring Boot HelloWorld
 
 一个功能：
 
@@ -27,9 +27,9 @@
 
 
 
-### 1、创建一个maven工程；（jar）
+### 2.1   创建一个maven工程；（jar）
 
-### 2、导入spring boot相关的依赖
+### 2.2   导入spring boot相关的依赖
 
 ```xml
     <parent>
@@ -45,7 +45,7 @@
     </dependencies>
 ```
 
-### 3、编写一个主程序；启动Spring Boot应用
+### 2.3   编写一个主程序；启动Spring Boot应用
 
 ```java
 
@@ -63,7 +63,7 @@ public class HelloWorldMainApplication {
 }
 ```
 
-### 4、编写相关的Controller、Service
+### 2.4   编写相关的Controller、Service
 
 ```java
 @Controller
@@ -80,9 +80,9 @@ public class HelloController {
 
 
 
-### 5、运行主程序测试
+### 2.5   运行主程序测试
 
-### 6、简化部署
+### 2.6   简化部署
 
 ```xml
  <!-- 这个插件，可以将应用打包成一个可执行的jar包；-->
@@ -98,11 +98,11 @@ public class HelloController {
 
 将这个应用打成jar包，直接使用java -jar的命令进行执行；
 
-## 5、Hello World探究
+## 3   Hello World探究
 
-### 1、POM文件
+### 3.1  POM文件
 
-#### 1、父项目
+#### 3.1.1  父项目
 
 ```xml
 <parent>
@@ -126,7 +126,7 @@ Spring Boot的版本仲裁中心；
 
 以后我们导入依赖默认是不需要写版本；（没有在dependencies里面管理的依赖自然需要声明版本号）
 
-#### 2、启动器
+#### 3.1.2  启动器
 
 ```xml
 <dependency>
@@ -145,7 +145,7 @@ Spring Boot将所有的功能场景都抽取出来，做成一个个的starters�
 
 
 
-### 2、主程序类，主入口类
+### 3.2   主程序类，主入口类
 
 ```java
 /**
@@ -230,16 +230,10 @@ J2EE的整体整合解决方案和自动配置都在spring-boot-autoconfigure-1.
 
 
 
-​		
+## 4   使用Spring Initializer快速创建Spring Boot项目
 
-==Spring注解版（谷粒学院）==
-
-
-
-## 6、使用Spring Initializer快速创建Spring Boot项目
-
-### 1、IDEA：使用 Spring Initializer快速创建项目
-### 2、STS使用 Spring Starter Project快速创建项目
+### 4.1   IDEA：使用 Spring Initializer快速创建项目
+### 4.2   STS使用 Spring Starter Project快速创建项目
 
 默认生成的Spring Boot项目；
 
@@ -253,9 +247,9 @@ J2EE的整体整合解决方案和自动配置都在spring-boot-autoconfigure-1.
 
 
 
-# 二、配置文件
+# 二   配置文件
 
-## 1、配置文件
+## 1  配置文件
 
 SpringBoot使用一个全局的配置文件，配置文件名是固定的；
 
@@ -298,9 +292,9 @@ server:
 
 
 
-## 2、YAML语法：
+## 2    YAML语法：
 
-### 1、基本语法
+### 2.1   基本语法
 
 k:(空格)v：表示一对键值对（空格必须有）；
 
@@ -314,9 +308,7 @@ server:
 
 属性和值也是大小写敏感；
 
-
-
-### 2、值的写法
+### 2.2  值的写法
 
 #### 字面量：普通的值（数字，字符串，布尔）
 
@@ -373,7 +365,7 @@ pets: [cat,dog,pig]
 
 
 
-## 3、配置文件值注入
+## 2.3   配置文件值注入
 
 配置文件
 
@@ -433,7 +425,7 @@ public class Person {
 
 
 
-#### 1、@Value获取值和@ConfigurationProperties获取值比较
+#### 2.3.1   @Value获取值和@ConfigurationProperties获取值比较
 
 |            | @ConfigurationProperties | @Value |
 | ---------- | ------------------------ | ------ |
@@ -451,7 +443,7 @@ public class Person {
 
 
 
-#### 2、配置文件注入值数据校验
+#### 2.3.2   配置文件注入值数据校验
 
 ```java
 @Component
@@ -482,7 +474,7 @@ public class Person {
 
 
 
-#### 3、@PropertySource&@ImportResource&@Bean
+#### 2.3.3   @PropertySource&@ImportResource&@Bean
 
 @**PropertySource**：加载指定的配置文件；
 
@@ -572,9 +564,9 @@ public class MyAppConfig {
 }
 ```
 
-## 4、配置文件占位符
+## 2.4   配置文件占位符
 
-### 1、随机数
+### 2.4.1  随机数
 
 ```java
 ${random.value}、${random.int}、${random.long}
@@ -584,7 +576,7 @@ ${random.int(10)}、${random.int[1024,65536]}
 
 
 
-### 2、占位符获取之前配置的值，如果没有可以是用:指定默认值
+### 2.4.2  占位符获取之前配置的值，如果没有可以是用:指定默认值
 
 ```properties
 person.last-name=张三${random.uuid}
@@ -600,9 +592,9 @@ person.dog.age=15
 
 
 
-## 5、Profile
+## 2.5   Profile
 
-### 1、多Profile文件
+### 2.5.1   多Profile文件
 
 我们在主配置文件编写的时候，文件名可以是   application-{profile}.properties/yml
 
@@ -610,7 +602,7 @@ person.dog.age=15
 
 
 
-### 2、yml支持多文档块方式
+### 2.5.2    yml支持多文档块方式
 
 ```yml
 
@@ -639,7 +631,7 @@ spring:
 
 
 
-### 3、激活指定profile
+### 2.5.3、激活指定profile
 
 ​	1、在配置文件中指定  spring.profiles.active=dev
 
@@ -655,7 +647,7 @@ spring:
 
 
 
-## 6、配置文件加载位置
+## 2.6  配置文件加载位置
 
 springboot 启动会扫描以下位置的application.properties或者application.yml文件作为Spring boot的默认配置文件
 
@@ -679,7 +671,7 @@ SpringBoot会从这四个位置全部加载主配置文件；**互补配置**；
 
 java -jar spring-boot-02-config-02-0.0.1-SNAPSHOT.jar --spring.config.location=G:/application.properties
 
-## 7、外部配置加载顺序
+## 2.7  外部配置加载顺序
 
 **==SpringBoot也可以从以下位置加载配置； 优先级从高到低；高优先级的配置覆盖低优先级的配置，所有的配置会形成互补配置==**
 
@@ -729,7 +721,7 @@ java -jar spring-boot-02-config-02-0.0.1-SNAPSHOT.jar --server.port=8087  --serv
 
 [参考官方文档](https://docs.spring.io/spring-boot/docs/1.5.9.RELEASE/reference/htmlsingle/#boot-features-external-config)
 
-## 8、自动配置原理
+## 2.8   自动配置原理
 
 配置文件到底能写什么？怎么写？自动配置原理；
 
@@ -737,11 +729,11 @@ java -jar spring-boot-02-config-02-0.0.1-SNAPSHOT.jar --server.port=8087  --serv
 
 
 
-### 1、**自动配置原理：**
+### 2.8.1  自动配置原理
 
 1）、SpringBoot启动的时候加载主配置类，开启了自动配置功能 ==@EnableAutoConfiguration==
 
-**2）、@EnableAutoConfiguration 作用：**
+2）、@EnableAutoConfiguration 作用：**
 
  -  利用EnableAutoConfigurationImportSelector给容器中导入一些组件？
 
@@ -942,7 +934,7 @@ xxxxProperties:封装配置文件中相关属性；
 
 
 
-### 2、细节
+### 2.8.2   细节
 
 
 
@@ -1002,9 +994,9 @@ Negative matches:（没有启动，没有匹配成功的自动配置类）
 
 
 
-# 三、日志
+# 三  日志
 
-## 1、日志框架
+## 1   日志框架
 
 
 ​			SpringBoot写了一个统一的接口层；日志门面（日志的一个抽象层）；logging-abstract.jar；
@@ -1035,9 +1027,9 @@ SpringBoot：底层是Spring框架，Spring框架默认是用JCL；‘
 
 
 
-## 2、SLF4j使用
+## 2   SLF4j使用
 
-### 1、如何在系统中使用 SLF4j   https://www.slf4j.org
+### 2.1  如何在系统中使用 SLF4j   https://www.slf4j.org
 
 以后开发的时候，日志记录方法的调用，不应该来直接调用日志的实现类，而是调用日志抽象层里面的方法；
 
@@ -1061,7 +1053,7 @@ public class HelloWorld {
 
 每一个日志的实现框架都有自己的配置文件。使用slf4j以后，**配置文件还是做成日志实现框架自己本身的配置文件；**
 
-### 2、遗留问题
+### 2.2  遗留问题
 
 （slf4j+logback）: Spring（commons-logging）、Hibernate（jboss-logging）、MyBatis、xxxx
 
@@ -1079,7 +1071,7 @@ public class HelloWorld {
 
 
 
-## 3、SpringBoot日志关系
+## 3  SpringBoot日志关系
 
 ```xml
 		<dependency>
@@ -1143,9 +1135,9 @@ public abstract class LogFactory {
 
 **==SpringBoot能自动适配所有的日志，而且底层使用slf4j+logback的方式记录日志，引入其他框架的时候，只需要把这个框架依赖的日志框架排除掉即可；==**
 
-## 4、日志使用；
+## 4  日志使用；
 
-### 1、默认配置
+### 4.1  默认配置
 
 SpringBoot默认帮我们配置好了日志；
 
@@ -1207,7 +1199,7 @@ logging.pattern.file=%d{yyyy-MM-dd} === [%thread] === %-5level === %logger{50} =
 | 指定文件名        | (none)       | my.log   | 输出日志到my.log文件           |
 | (none)       | 指定目录         | /var/log | 输出到指定目录的 spring.log 文件中 |
 
-### 2、指定配置
+### 4.2  指定配置
 
 给类路径下放上每个日志框架自己的配置文件即可；SpringBoot就不使用他默认配置的了
 
@@ -1259,7 +1251,7 @@ logging.pattern.file=%d{yyyy-MM-dd} === [%thread] === %-5level === %logger{50} =
 
  `no applicable action for [springProfile]`
 
-## 5、切换日志框架
+## 5  切换日志框架
 
 可以按照slf4j的日志适配图，进行相关的切换；
 
@@ -1312,9 +1304,9 @@ slf4j+log4j2方式 :
 
 -----------------
 
-# 四、Web开发
+# 四   Web开发
 
-## 1、简介
+## 1   简介
 
 使用SpringBoot；
 
@@ -1338,7 +1330,7 @@ xxxxProperties:配置类来封装配置文件的内容；
 
 
 
-## 2、SpringBoot对静态资源的映射规则；
+## 2   SpringBoot对静态资源的映射规则；
 
 ```java
 @ConfigurationProperties(prefix = "spring.resources", ignoreUnknownFields = false)
@@ -1458,7 +1450,7 @@ localhost:8080/abc ===  去静态资源文件夹里面找abc
 ==4）、所有的 **/favicon.ico  都是在静态资源文件下找；==
 
 
-### 3、全面接管SpringMVC；
+## 3   全面接管SpringMVC；
 
 SpringBoot对SpringMVC的自动配置不需要了，所有都是我们自己配置；所有的SpringMVC的自动配置都失效了
 
@@ -1518,7 +1510,7 @@ public class WebMvcAutoConfiguration {
 
 
 
-## 5、如何修改SpringBoot的默认配置
+## 4  如何修改SpringBoot的默认配置
 
 模式：
 
@@ -1530,7 +1522,7 @@ public class WebMvcAutoConfiguration {
 
 ## 6、RestfulCRUD
 
-### 1）、默认访问首页
+### 4.1   默认访问首页
 
 ```java
 
@@ -1562,9 +1554,9 @@ public class MyMvcConfig extends WebMvcConfigurerAdapter {
 
 ```
 
-### 2）、国际化
+### 4.2    国际化
 
-**1）、编写国际化配置文件；**
+1）、编写国际化配置文件；**
 
 2）、使用ResourceBundleMessageSource管理国际化资源文件
 
@@ -3584,6 +3576,7 @@ public class HelloServiceAutoConfiguration {
 # 更多SpringBoot整合示例
 
 https://github.com/spring-projects/spring-boot/tree/master/spring-boot-samples
+
 
 
 
