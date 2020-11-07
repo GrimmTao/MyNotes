@@ -24,7 +24,7 @@
 
 一个功能：浏览器发送hello请求，服务器接受请求并处理，响应Hello World字符串；
 
-### 2.1   创建一个maven工程；
+### 2.1   创建一个maven工程
 
 ### 2.2   导入spring boot相关的依赖
 
@@ -42,7 +42,7 @@
     </dependencies>
 ```
 
-### 2.3   编写一个主程序；启动Spring Boot应用
+### 2.3   启动Spring Boot应用
 
 ```java
 
@@ -60,7 +60,7 @@ public class HelloWorldMainApplication {
 }
 ```
 
-### 2.4   编写相关的Controller、Service
+### 2.4   编写Controller、Service
 
 ```java
 @Controller
@@ -131,9 +131,7 @@ Spring Boot的版本仲裁中心；
 </dependency>
 ```
 
-**spring-boot-starter**-==web==：
-
-​	spring-boot-starter：spring-boot场景启动器；帮我们导入了web模块正常运行所依赖的组件；
+**spring-boot-starter**： spring-boot场景启动器；帮我们导入了web模块正常运行所依赖的组件；
 
 Spring Boot将所有的功能场景都抽取出来，做成一个个的starters（启动器），只需要在项目里面引入这些starter相关场景的所有依赖都会导入进来。要用什么功能就导入什么场景的启动器
 
@@ -213,7 +211,7 @@ public @interface EnableAutoConfiguration {
 ​		SpringFactoriesLoader.loadFactoryNames(EnableAutoConfiguration.class,classLoader)；
 
 
-==Spring Boot在启动的时候从类路径下的META-INF/spring.factories中获取EnableAutoConfiguration指定的值，将这些值作为自动配置类导入到容器中，自动配置类就生效，帮我们进行自动配置工作；==以前我们需要自己配置的东西，自动配置类都帮我们；
+Spring Boot在启动的时候从类路径下的META-INF/spring.factories中获取EnableAutoConfiguration指定的值，将这些值作为自动配置类导入到容器中，自动配置类就生效，帮我们进行自动配置工作；以前我们需要自己配置的东西，自动配置类都帮我们；
 
 J2EE的整体整合解决方案和自动配置都在spring-boot-autoconfigure-1.5.9.RELEASE.jar；
 
@@ -266,7 +264,7 @@ server:
 </server>
 ```
 
-###  5.1    YAML基本语法：
+###  5.1    YAML基本语法
 
 k:(空格)v：表示一对键值对（空格必须有）；
 
@@ -638,15 +636,15 @@ java -jar spring-boot-02-config-02-0.0.1-SNAPSHOT.jar --server.port=8087  --serv
 
 **5. RandomValuePropertySource配置的random属性值**
 
-==**由jar包外向jar包内进行寻找；**==
+     **由jar包外向jar包内进行寻找；**
 
-==**优先加载带profile**==
+	 **优先加载带profile**
 
 **6. jar包外部的application-{profile}.properties或application.yml(带spring.profile)配置文件**
 
 **7. jar包内部的application-{profile}.properties或application.yml(带spring.profile)配置文件**
 
-==**再来加载不带profile**==
+	 **再来加载不带profile**
 
 **8. jar包外部的application.properties或application.yml(不带spring.profile)配置文件**
 
@@ -668,7 +666,7 @@ java -jar spring-boot-02-config-02-0.0.1-SNAPSHOT.jar --server.port=8087  --serv
 
 #### 5.8.1  自动配置原理
 
-1）、SpringBoot启动的时候加载主配置类，开启了自动配置功能 ==@EnableAutoConfiguration==
+1）、SpringBoot启动的时候加载主配置类，开启了自动配置功能  @EnableAutoConfiguration
 
 2）、@EnableAutoConfiguration 作用：**
 
@@ -977,11 +975,11 @@ public class HelloWorld {
 
 **如何让系统中所有的日志都统一到slf4j；**
 
-==1、将系统中其他日志框架先排除出去；==
+ 1、将系统中其他日志框架先排除出去；
 
-==2、用中间包来替换原有的日志框架；==
+ 2、用中间包来替换原有的日志框架；
 
-==3、我们导入slf4j其他的实现==
+ 3、我们导入slf4j其他的实现
 
 
 
@@ -1044,9 +1042,9 @@ public abstract class LogFactory {
 		</dependency>
 ```
 
-**==SpringBoot能自动适配所有的日志，而且底层使用slf4j+logback的方式记录日志，引入其他框架的时候，只需要把这个框架依赖的日志框架排除掉即可；==**
+**SpringBoot能自动适配所有的日志，而且底层使用slf4j+logback的方式记录日志，引入其他框架的时候，只需要把这个框架依赖的日志框架排除掉即可；**
 
-### 6.4  日志使用；
+### 6.4  日志使用
 
 ####  6.4.1  默认配置
 
@@ -1909,7 +1907,7 @@ xxxxAutoConfiguration：帮我们给容器中自动配置组件；
 xxxxProperties:配置类来封装配置文件的内容；
 ```
 
-### 9.2   SpringBoot对静态资源的映射规则；
+### 9.2   静态资源的映射规则
 
 ```java
 @ConfigurationProperties(prefix = "spring.resources", ignoreUnknownFields = false)
@@ -1986,7 +1984,7 @@ public class ResourceProperties implements ResourceLoaderAware {
 ```
 
 
-1). 所有 /webjars/** ，都去 classpath:/META-INF/resources/webjars/ 找资源；==
+1). 所有 /webjars/** ，都去 classpath:/META-INF/resources/webjars/ 找资源；
 
 ​	webjars：以jar包的方式引入静态资源；
 
@@ -2007,7 +2005,7 @@ localhost:8080/webjars/jquery/3.3.1/jquery.js
 
 
 
-2). "/**" 访问当前项目的任何资源，都去（静态资源的文件夹）找映射==
+2). "/**" 访问当前项目的任何资源，都去（静态资源的文件夹）找映射
 
 ```
 "classpath:/META-INF/resources/", 
@@ -2523,11 +2521,11 @@ public EmbeddedServletContainerCustomizer embeddedServletContainerCustomizer(){
 }
 ```
 
-### 10.2  注册Servlet三大组件【Servlet、Filter、Listener】
+### 10.2  注册Servlet三大组件
 
 由于SpringBoot默认是以jar包的方式启动嵌入式的Servlet容器来启动SpringBoot的web应用，没有web.xml文件。
 
-注册三大组件用以下方式
+注册三大组件【Servlet、Filter、Listener】用以下方式
 
 ServletRegistrationBean
 
@@ -2648,7 +2646,7 @@ Undertow
 </dependency>
 ```
 
-### 10.4   嵌入式Servlet容器自动配置原理；
+### 10.4   嵌入式Servlet容器自动配置原理
 
 EmbeddedServletContainerAutoConfiguration：嵌入式的Servlet容器自动配置？
 
@@ -2815,7 +2813,7 @@ ServerProperties也是定制器
 
 
 
-###   10.5 嵌入式Servlet容器启动原理；
+###   10.5 嵌入式Servlet容器启动原理
 
 什么时候创建嵌入式的Servlet容器工厂？什么时候获取嵌入式的Servlet容器并启动Tomcat；
 
@@ -2909,7 +2907,7 @@ EmbeddedServletContainerFactory containerFactory = getEmbeddedServletContainerFa
 
 **先启动嵌入式的Servlet容器，再将ioc容器中剩下没有创建出的对象获取出来；**
 
-**==IOC容器启动创建嵌入式的Servlet容器==**
+**IOC容器启动创建嵌入式的Servlet容器**
 
 
 
@@ -3065,7 +3063,7 @@ public ConfigurableApplicationContext run(String... args) {
 }
 ```
 
-**==启动Servlet容器，再启动SpringBoot应用==**
+**启动Servlet容器，再启动SpringBoot应用**
 
 
 
