@@ -1211,7 +1211,689 @@ logging.pattern.file=%d{yyyy-MM-dd} === [%thread] === %-5level === %logger{50} =
 ```
 
 -----------------
+## 7   数据访问
 
+### 7.1   JDBC
+
+```xml
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-jdbc</artifactId>
+</dependency>
+<dependency>
+	<groupId>mysql</groupId>
+	<artifactId>mysql-connector-java</artifactId>
+	<scope>runtime</scope>
+</dependency>
+```
+```yaml
+spring:
+  datasource:
+    username: root
+    password: 123456
+    url: jdbc:mysql://192.168.15.22:3306/jdbc
+    driver-class-name: com.mysql.jdbc.Driver
+```
+
+效果：
+
+默认是用org.apache.tomcat.jdbc.pool.DataSource作为数据源；
+
+数据源的相关配置都在DataSourceProperties里面；
+
+自动配置原理：
+
+org.springframework.boot.autoconfigure.jdbc：
+
+1、参考DataSourceConfiguration，根据配置创建数据源，默认使用Tomcat连接池；可以使用spring.datasource.type指定自定义的数据源类型；
+
+2、SpringBoot默认可以支持；
+```
+org.apache.tomcat.jdbc.pool.DataSource、HikariDataSource、BasicDataSource、
+```
+
+3、自定义数据源类型
+
+```java
+/**
+ * Generic DataSource configuration.
+ */
+@ConditionalOnMissingBean(DataSource.class)
+@ConditionalOnProperty(name = "spring.datasource.type")
+static class Generic {
+
+   @Bean
+   public DataSource dataSource(DataSourceProperties properties) {
+       //使用DataSourceBuilder创建数据源，利用反射创建响应type的数据源，并且绑定相关属性
+      return properties.initializeDataSourceBuilder().build();
+   }
+}
+```
+
+4、**DataSourceInitializer：ApplicationListener**；
+
+​	作用：
+
+​		1）、runSchemaScripts();运行建表语句；
+
+​		2）、runDataScripts();运行插入数据的sql语句；
+
+默认只需要将文件命名为：
+
+```properties
+schema-*.sql、data-*.sql
+默认规则：schema.sql，schema-all.sql；
+可以使用   
+	schema:
+      - classpath:department.sql
+      指定位置
+```
+
+5、操作数据库：自动配置了JdbcTemplate操作数据库
+
+###  7.2   整合Druid数据源
+**1. 引入 maven 依赖**
+```maven
+<!-- https://mvnrepository.com/artifact/com.alibaba/druid -->
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>druid</artifactId>
+    <version>1.1.21</version>
+</dependency>
+```
+
+**2. 配置**
+
+在properties中指定 spring.datasource.type:com.alibaba.druid.pool.DruidDataSource
+
+```
+#   数据源其他配置
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: SELECT 1 FROM DUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+#   配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+    filters: stat,wall,log4j
+    maxPoolPreparedStatementPerConnectionSize: 20
+    useGlobalDataSourceStat: true
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500
+```
+
+**3. 导入druid数据源**
+```java
+@Configuration
+public class DruidConfig {
+
+    @ConfigurationProperties(prefix = "spring.datasource")
+    @Bean
+    public DataSource druid(){
+       return  new DruidDataSource();
+    }
+
+    //配置Druid的监控
+    //1、配置一个管理后台的Servlet
+    @Bean
+    public ServletRegistrationBean statViewServlet(){
+        ServletRegistrationBean bean = new ServletRegistrationBean(new StatViewServlet(), "/druid/*");
+        Map<String,String> initParams = new HashMap<>();
+
+        initParams.put("loginUsername","admin");
+        initParams.put("loginPassword","123456");
+        initParams.put("allow","");//默认就是允许所有访问
+        initParams.put("deny","192.168.15.21");
+
+        bean.setInitParameters(initParams);
+        return bean;
+    }
+
+
+    //2、配置一个web监控的filter
+    @Bean
+    public FilterRegistrationBean webStatFilter(){
+        FilterRegistrationBean bean = new FilterRegistrationBean();
+        bean.setFilter(new WebStatFilter());
+
+        Map<String,String> initParams = new HashMap<>();
+        initParams.put("exclusions","*.js,*.css,/druid/*");
+
+        bean.setInitParameters(initParams);
+
+        bean.setUrlPatterns(Arrays.asList("/*"));
+
+        return  bean;
+    }
+}
+```
+4. 以上配置完成之后，在地址栏输入localhost:8080/druid，应该就能进入druid的管理后台。
+
+###  7.3    整合MyBatis
+
+```xml
+	<dependency>
+		<groupId>org.mybatis.spring.boot</groupId>
+		<artifactId>mybatis-spring-boot-starter</artifactId>
+		<version>1.3.1</version>
+	</dependency>
+```
+
+![](https://note.youdao.com/yws/public/resource/d2df8f46cb515e690d5ce36ac14d844d/xmlnote/BF83D8CAEC5E446B9CF31A1B46CAF9EF/1406)
+
+步骤：
+
+​①  配置数据源相关属性（见上一节Druid）
+​② 给数据库建表
+​③ 创建JavaBean
+④ 注解版
+
+```java
+import org.apache.ibatis.annotations.*
+ 
+//指定这是一个操作数据库的mapper
+@Mapper
+public interface DepartmentMapper {
+
+    @Select("select * from department where id=#{id}")
+    public Department getDeptById(Integer id);
+
+    @Delete("delete from department where id=#{id}")
+    public int deleteDeptById(Integer id);
+
+    @Options(useGeneratedKeys = true,keyProperty = "id")
+    @Insert("insert into department(departmentName) values(#{departmentName})")
+    public int insertDept(Department department);
+
+    @Update("update department set departmentName=#{departmentName} where id=#{id}")
+    public int updateDept(Department department);
+}
+```
+
+自定义MyBatis的配置规则；给容器中添加一个ConfigurationCustomizer；
+
+```java
+@org.springframework.context.annotation.Configuration
+public class MyBatisConfig {
+
+    @Bean
+    public ConfigurationCustomizer configurationCustomizer(){
+        return new ConfigurationCustomizer(){
+
+            @Override
+            public void customize(Configuration configuration) {
+                configuration.setMapUnderscoreToCamelCase(true);
+            }
+        };
+    }
+}
+```
+
+```java
+使用MapperScan批量扫描所有的Mapper接口；这里使用了MapperScan，就不需要在每个Mapper类上添加@Mapper注解了
+@MapperScan(value = "com.atguigu.springboot.mapper")
+@SpringBootApplication
+public class SpringBoot06DataMybatisApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(SpringBoot06DataMybatisApplication.class, args);
+	}
+}
+```
+
+⑤  配置文件版
+
+```yaml
+mybatis:
+  config-location: classpath:mybatis/mybatis-config.xml 指定全局配置文件的位置
+  mapper-locations: classpath:mybatis/mapper/*.xml  指定sql映射文件的位置
+```
+
+更多使用参照
+http://www.mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/
+
+
+
+###  7.4    整合SpringData JPA
+
+####   7.4.1SpringData简介
+
+![SpringData简介](https://note.youdao.com/yws/public/resource/d2df8f46cb515e690d5ce36ac14d844d/xmlnote/9DC0FF1759984FB0BCA7E6AB798515F2/1398)
+
+####  7.4.2  整合SpringData JPA
+
+JPA:ORM（Object Relational Mapping）；
+
+1）、编写一个实体类（bean）和数据表进行映射，并且配置好映射关系；
+
+```java
+//使用JPA注解配置映射关系
+@Entity //告诉JPA这是一个实体类（和数据表映射的类）
+@Table(name = "tbl_user") //@Table来指定和哪个数据表对应;如果省略默认表名就是user；
+public class User {
+
+    @Id //这是一个主键
+    @GeneratedValue(strategy = GenerationType.IDENTITY)//自增主键
+    private Integer id;
+
+    @Column(name = "last_name",length = 50) //这是和数据表对应的一个列
+    private String lastName;
+    @Column //省略默认列名就是属性名
+    private String email;
+```
+
+2）、编写一个Dao接口来操作实体类对应的数据表（Repository）
+
+```java
+//继承JpaRepository来完成对数据库的操作
+public interface UserRepository extends JpaRepository<User,Integer> {
+}
+
+```
+
+3）、基本的配置JpaProperties
+
+```yaml
+spring:  
+ jpa:
+    hibernate:
+#     更新或者创建数据表结构
+      ddl-auto: update
+#    控制台显示SQL
+    show-sql: true
+```
+
+-----------------------------
+## 8.   启动配置原理
+
+几个重要的事件回调机制
+
+配置在META-INF/spring.factories
+
+**ApplicationContextInitializer**
+
+**SpringApplicationRunListener**
+
+
+
+只需要放在ioc容器中
+
+**ApplicationRunner**
+
+**CommandLineRunner**
+
+
+
+启动流程：
+
+### 8.1  创建SpringApplication对象
+
+```java
+initialize(sources);
+private void initialize(Object[] sources) {
+    //保存主配置类
+    if (sources != null && sources.length > 0) {
+        this.sources.addAll(Arrays.asList(sources));
+    }
+    //判断当前是否一个web应用
+    this.webEnvironment = deduceWebEnvironment();
+    //从类路径下找到META-INF/spring.factories配置的所有ApplicationContextInitializer；然后保存起来
+    setInitializers((Collection) getSpringFactoriesInstances(
+        ApplicationContextInitializer.class));
+    //从类路径下找到ETA-INF/spring.factories配置的所有ApplicationListener
+    setListeners((Collection) getSpringFactoriesInstances(ApplicationListener.class));
+    //从多个配置类中找到有main方法的主配置类
+    this.mainApplicationClass = deduceMainApplicationClass();
+}
+```
+
+![](https://note.youdao.com/yws/public/resource/d2df8f46cb515e690d5ce36ac14d844d/xmlnote/990655E962574059B15CAAC18A917D09/1416)
+
+![](https://note.youdao.com/yws/public/resource/d2df8f46cb515e690d5ce36ac14d844d/xmlnote/1BC4590746754FAEA648F91F0E673D3D/1411)
+
+###   8.2  运行run方法
+
+```java
+public ConfigurableApplicationContext run(String... args) {
+   StopWatch stopWatch = new StopWatch();
+   stopWatch.start();
+   ConfigurableApplicationContext context = null;
+   FailureAnalyzers analyzers = null;
+   configureHeadlessProperty();
+    
+   //获取SpringApplicationRunListeners；从类路径下META-INF/spring.factories
+   SpringApplicationRunListeners listeners = getRunListeners(args);
+    //回调所有的获取SpringApplicationRunListener.starting()方法
+   listeners.starting();
+   try {
+       //封装命令行参数
+      ApplicationArguments applicationArguments = new DefaultApplicationArguments(
+            args);
+      //准备环境
+      ConfigurableEnvironment environment = prepareEnvironment(listeners,
+            applicationArguments);
+       		//创建环境完成后回调SpringApplicationRunListener.environmentPrepared()；表示环境准备完成
+       
+      Banner printedBanner = printBanner(environment);
+       
+       //创建ApplicationContext；决定创建web的ioc还是普通的ioc
+      context = createApplicationContext();
+       
+      analyzers = new FailureAnalyzers(context);
+       //准备上下文环境;将environment保存到ioc中；而且applyInitializers()；
+       //applyInitializers()：回调之前保存的所有的ApplicationContextInitializer的initialize方法
+       //回调所有的SpringApplicationRunListener的contextPrepared()；
+       //
+      prepareContext(context, environment, listeners, applicationArguments,
+            printedBanner);
+       //prepareContext运行完成以后回调所有的SpringApplicationRunListener的contextLoaded（）；
+       
+       //s刷新容器；ioc容器初始化（如果是web应用还会创建嵌入式的Tomcat）；Spring注解版
+       //扫描，创建，加载所有组件的地方；（配置类，组件，自动配置）
+      refreshContext(context);
+       //从ioc容器中获取所有的ApplicationRunner和CommandLineRunner进行回调
+       //ApplicationRunner先回调，CommandLineRunner再回调
+      afterRefresh(context, applicationArguments);
+       //所有的SpringApplicationRunListener回调finished方法
+      listeners.finished(context, null);
+      stopWatch.stop();
+      if (this.logStartupInfo) {
+         new StartupInfoLogger(this.mainApplicationClass)
+               .logStarted(getApplicationLog(), stopWatch);
+      }
+       //整个SpringBoot应用启动完成以后返回启动的ioc容器；
+      return context;
+   }
+   catch (Throwable ex) {
+      handleRunFailure(context, listeners, analyzers, ex);
+      throw new IllegalStateException(ex);
+   }
+}
+```
+
+###   8.3  事件监听机制
+
+配置在META-INF/spring.factories
+
+**ApplicationContextInitializer**
+
+```java
+public class HelloApplicationContextInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+    @Override
+    public void initialize(ConfigurableApplicationContext applicationContext) {
+     System.out.println("ApplicationContextInitializer...initialize..."+applicationContext);
+    }
+}
+
+```
+
+**SpringApplicationRunListener**
+
+```java
+public class HelloSpringApplicationRunListener implements SpringApplicationRunListener {
+
+    //必须有的构造器
+    public HelloSpringApplicationRunListener(SpringApplication application, String[] args){
+
+    }
+
+    @Override
+    public void starting() {
+        System.out.println("SpringApplicationRunListener...starting...");
+    }
+
+    @Override
+    public void environmentPrepared(ConfigurableEnvironment environment) {
+        Object o = environment.getSystemProperties().get("os.name");
+        System.out.println("SpringApplicationRunListener...environmentPrepared.."+o);
+    }
+
+    @Override
+    public void contextPrepared(ConfigurableApplicationContext context) {
+        System.out.println("SpringApplicationRunListener...contextPrepared...");
+    }
+
+    @Override
+    public void contextLoaded(ConfigurableApplicationContext context) {
+        System.out.println("SpringApplicationRunListener...contextLoaded...");
+    }
+
+    @Override
+    public void finished(ConfigurableApplicationContext context, Throwable exception) {
+        System.out.println("SpringApplicationRunListener...finished...");
+    }
+}
+
+```
+
+配置（META-INF/spring.factories）
+
+```properties
+org.springframework.context.ApplicationContextInitializer=\
+com.atguigu.springboot.listener.HelloApplicationContextInitializer
+
+org.springframework.boot.SpringApplicationRunListener=\
+com.atguigu.springboot.listener.HelloSpringApplicationRunListener
+```
+
+只需要放在ioc容器中
+
+**ApplicationRunner**
+
+```java
+@Component
+public class HelloApplicationRunner implements ApplicationRunner {
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        System.out.println("ApplicationRunner...run....");
+    }
+}
+```
+
+
+**CommandLineRunner**
+
+```java
+@Component
+public class HelloCommandLineRunner implements CommandLineRunner {
+    @Override
+    public void run(String... args) throws Exception {
+        System.out.println("CommandLineRunner...run..."+ Arrays.asList(args));
+    }
+}
+```
+
+
+
+##  9  自定义starter
+
+starter：
+
+​	1、这个场景需要使用到的依赖是什么？
+
+​	2、如何编写自动配置
+
+```java
+@Configuration  //指定这个类是一个配置类
+@ConditionalOnXXX  //在指定条件成立的情况下自动配置类生效
+@AutoConfigureAfter  //指定自动配置类的顺序
+@Bean  //给容器中添加组件
+
+@ConfigurationPropertie结合相关xxxProperties类来绑定相关的配置
+@EnableConfigurationProperties //让xxxProperties生效加入到容器中
+
+自动配置类要能加载
+将需要启动就加载的自动配置类，配置在META-INF/spring.factories
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+org.springframework.boot.autoconfigure.admin.SpringApplicationAdminJmxAutoConfiguration,\
+org.springframework.boot.autoconfigure.aop.AopAutoConfiguration,\
+```
+
+​3、模式：
+
+启动器只用来做依赖导入；
+
+专门来写一个自动配置模块；
+
+启动器依赖自动配置；别人只需要引入启动器（starter）
+
+mybatis-spring-boot-starter；自定义启动器名-spring-boot-starter
+
+步骤：
+
+1）、启动器模块
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.atguigu.starter</groupId>
+    <artifactId>atguigu-spring-boot-starter</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <!--启动器-->
+    <dependencies>
+
+        <!--引入自动配置模块-->
+        <dependency>
+            <groupId>com.atguigu.starter</groupId>
+            <artifactId>atguigu-spring-boot-starter-autoconfigurer</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+</project>
+```
+
+2）、自动配置模块
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <groupId>com.atguigu.starter</groupId>
+   <artifactId>atguigu-spring-boot-starter-autoconfigurer</artifactId>
+   <version>0.0.1-SNAPSHOT</version>
+   <packaging>jar</packaging>
+
+   <name>atguigu-spring-boot-starter-autoconfigurer</name>
+   <description>Demo project for Spring Boot</description>
+
+   <parent>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-parent</artifactId>
+      <version>1.5.10.RELEASE</version>
+      <relativePath/> <!-- lookup parent from repository -->
+   </parent>
+
+   <properties>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+      <java.version>1.8</java.version>
+   </properties>
+
+   <dependencies>
+
+      <!--引入spring-boot-starter；所有starter的基本配置-->
+      <dependency>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter</artifactId>
+      </dependency>
+
+   </dependencies>
+
+</project>
+
+```
+
+```java
+package com.atguigu.starter;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+@ConfigurationProperties(prefix = "atguigu.hello")
+public class HelloProperties {
+
+    private String prefix;
+    private String suffix;
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+
+    public String getSuffix() {
+        return suffix;
+    }
+
+    public void setSuffix(String suffix) {
+        this.suffix = suffix;
+    }
+}
+
+```
+
+```java
+package com.atguigu.starter;
+
+public class HelloService {
+
+    HelloProperties helloProperties;
+
+    public HelloProperties getHelloProperties() {
+        return helloProperties;
+    }
+
+    public void setHelloProperties(HelloProperties helloProperties) {
+        this.helloProperties = helloProperties;
+    }
+
+    public String sayHellAtguigu(String name){
+        return helloProperties.getPrefix()+"-" +name + helloProperties.getSuffix();
+    }
+}
+
+```
+
+```java
+package com.atguigu.starter;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@ConditionalOnWebApplication //web应用才生效
+@EnableConfigurationProperties(HelloProperties.class)
+public class HelloServiceAutoConfiguration {
+
+    @Autowired
+    HelloProperties helloProperties;
+    @Bean
+    public HelloService helloService(){
+        HelloService service = new HelloService();
+        service.setHelloProperties(helloProperties);
+        return service;
+    }
+}
+
+```
+
+------------------------------
 ## 7   Web开发
 
 ### 7.1   简介
@@ -2651,714 +3333,6 @@ docker run --name some-mysql -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql:tag --
 指定mysql的一些配置参数
 ```
 
-
-
-# 六、SpringBoot与数据访问
-
-## 1、JDBC
-
-```xml
-<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-jdbc</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-```
-
-
-
-```yaml
-spring:
-  datasource:
-    username: root
-    password: 123456
-    url: jdbc:mysql://192.168.15.22:3306/jdbc
-    driver-class-name: com.mysql.jdbc.Driver
-```
-
-效果：
-
-​	默认是用org.apache.tomcat.jdbc.pool.DataSource作为数据源；
-
-​	数据源的相关配置都在DataSourceProperties里面；
-
-自动配置原理：
-
-org.springframework.boot.autoconfigure.jdbc：
-
-1、参考DataSourceConfiguration，根据配置创建数据源，默认使用Tomcat连接池；可以使用spring.datasource.type指定自定义的数据源类型；
-
-2、SpringBoot默认可以支持；
-
-```
-org.apache.tomcat.jdbc.pool.DataSource、HikariDataSource、BasicDataSource、
-```
-
-3、自定义数据源类型
-
-```java
-/**
- * Generic DataSource configuration.
- */
-@ConditionalOnMissingBean(DataSource.class)
-@ConditionalOnProperty(name = "spring.datasource.type")
-static class Generic {
-
-   @Bean
-   public DataSource dataSource(DataSourceProperties properties) {
-       //使用DataSourceBuilder创建数据源，利用反射创建响应type的数据源，并且绑定相关属性
-      return properties.initializeDataSourceBuilder().build();
-   }
-
-}
-```
-
-4、**DataSourceInitializer：ApplicationListener**；
-
-​	作用：
-
-​		1）、runSchemaScripts();运行建表语句；
-
-​		2）、runDataScripts();运行插入数据的sql语句；
-
-默认只需要将文件命名为：
-
-```properties
-schema-*.sql、data-*.sql
-默认规则：schema.sql，schema-all.sql；
-可以使用   
-	schema:
-      - classpath:department.sql
-      指定位置
-```
-
-5、操作数据库：自动配置了JdbcTemplate操作数据库
-
-## 2、整合Druid数据源
-1. **引入 maven 依赖**
-
-```maven
-<!-- https://mvnrepository.com/artifact/com.alibaba/druid -->
-<dependency>
-    <groupId>com.alibaba</groupId>
-    <artifactId>druid</artifactId>
-    <version>1.1.21</version>
-</dependency>
-```
-
-2. **配置**
-
-在properties中指定 spring.datasource.type:com.alibaba.druid.pool.DruidDataSource
-
-```
-#   数据源其他配置
-    initialSize: 5
-    minIdle: 5
-    maxActive: 20
-    maxWait: 60000
-    timeBetweenEvictionRunsMillis: 60000
-    minEvictableIdleTimeMillis: 300000
-    validationQuery: SELECT 1 FROM DUAL
-    testWhileIdle: true
-    testOnBorrow: false
-    testOnReturn: false
-    poolPreparedStatements: true
-#   配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
-    filters: stat,wall,log4j
-    maxPoolPreparedStatementPerConnectionSize: 20
-    useGlobalDataSourceStat: true
-    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500
-```
-
-3. **导入druid数据源**
-```java
-@Configuration
-public class DruidConfig {
-
-    @ConfigurationProperties(prefix = "spring.datasource")
-    @Bean
-    public DataSource druid(){
-       return  new DruidDataSource();
-    }
-
-    //配置Druid的监控
-    //1、配置一个管理后台的Servlet
-    @Bean
-    public ServletRegistrationBean statViewServlet(){
-        ServletRegistrationBean bean = new ServletRegistrationBean(new StatViewServlet(), "/druid/*");
-        Map<String,String> initParams = new HashMap<>();
-
-        initParams.put("loginUsername","admin");
-        initParams.put("loginPassword","123456");
-        initParams.put("allow","");//默认就是允许所有访问
-        initParams.put("deny","192.168.15.21");
-
-        bean.setInitParameters(initParams);
-        return bean;
-    }
-
-
-    //2、配置一个web监控的filter
-    @Bean
-    public FilterRegistrationBean webStatFilter(){
-        FilterRegistrationBean bean = new FilterRegistrationBean();
-        bean.setFilter(new WebStatFilter());
-
-        Map<String,String> initParams = new HashMap<>();
-        initParams.put("exclusions","*.js,*.css,/druid/*");
-
-        bean.setInitParameters(initParams);
-
-        bean.setUrlPatterns(Arrays.asList("/*"));
-
-        return  bean;
-    }
-}
-```
-4. 以上配置完成之后，在地址栏输入localhost:8080/druid，应该就能进入druid的管理后台。
-
-## 3、整合MyBatis
-
-```xml
-		<dependency>
-			<groupId>org.mybatis.spring.boot</groupId>
-			<artifactId>mybatis-spring-boot-starter</artifactId>
-			<version>1.3.1</version>
-		</dependency>
-```
-
-![](https://note.youdao.com/yws/public/resource/d2df8f46cb515e690d5ce36ac14d844d/xmlnote/BF83D8CAEC5E446B9CF31A1B46CAF9EF/1406)
-
-步骤：
-
-​	1）、配置数据源相关属性（见上一节Druid）
-
-​	2）、给数据库建表
-
-​	3）、创建JavaBean
-
-### 	4）、注解版
-
-```java
-import org.apache.ibatis.annotations.*
- 
-//指定这是一个操作数据库的mapper
-@Mapper
-public interface DepartmentMapper {
-
-    @Select("select * from department where id=#{id}")
-    public Department getDeptById(Integer id);
-
-    @Delete("delete from department where id=#{id}")
-    public int deleteDeptById(Integer id);
-
-    @Options(useGeneratedKeys = true,keyProperty = "id")
-    @Insert("insert into department(departmentName) values(#{departmentName})")
-    public int insertDept(Department department);
-
-    @Update("update department set departmentName=#{departmentName} where id=#{id}")
-    public int updateDept(Department department);
-}
-```
-
-
-自定义MyBatis的配置规则；给容器中添加一个ConfigurationCustomizer；
-
-```java
-@org.springframework.context.annotation.Configuration
-public class MyBatisConfig {
-
-    @Bean
-    public ConfigurationCustomizer configurationCustomizer(){
-        return new ConfigurationCustomizer(){
-
-            @Override
-            public void customize(Configuration configuration) {
-                configuration.setMapUnderscoreToCamelCase(true);
-            }
-        };
-    }
-}
-```
-
-
-
-```java
-使用MapperScan批量扫描所有的Mapper接口；这里使用了MapperScan，就不需要在每个Mapper类上添加@Mapper注解了
-@MapperScan(value = "com.atguigu.springboot.mapper")
-@SpringBootApplication
-public class SpringBoot06DataMybatisApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(SpringBoot06DataMybatisApplication.class, args);
-	}
-}
-```
-
-### 5）、配置文件版
-
-```yaml
-mybatis:
-  config-location: classpath:mybatis/mybatis-config.xml 指定全局配置文件的位置
-  mapper-locations: classpath:mybatis/mapper/*.xml  指定sql映射文件的位置
-```
-
-更多使用参照
-
-http://www.mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/
-
-
-
-## 4、整合SpringData JPA
-
-### 1）、SpringData简介
-
-![](https://note.youdao.com/yws/public/resource/d2df8f46cb515e690d5ce36ac14d844d/xmlnote/9DC0FF1759984FB0BCA7E6AB798515F2/1398)
-
-### 2）、整合SpringData JPA
-
-JPA:ORM（Object Relational Mapping）；
-
-1）、编写一个实体类（bean）和数据表进行映射，并且配置好映射关系；
-
-```java
-//使用JPA注解配置映射关系
-@Entity //告诉JPA这是一个实体类（和数据表映射的类）
-@Table(name = "tbl_user") //@Table来指定和哪个数据表对应;如果省略默认表名就是user；
-public class User {
-
-    @Id //这是一个主键
-    @GeneratedValue(strategy = GenerationType.IDENTITY)//自增主键
-    private Integer id;
-
-    @Column(name = "last_name",length = 50) //这是和数据表对应的一个列
-    private String lastName;
-    @Column //省略默认列名就是属性名
-    private String email;
-```
-
-2）、编写一个Dao接口来操作实体类对应的数据表（Repository）
-
-```java
-//继承JpaRepository来完成对数据库的操作
-public interface UserRepository extends JpaRepository<User,Integer> {
-}
-
-```
-
-3）、基本的配置JpaProperties
-
-```yaml
-spring:  
- jpa:
-    hibernate:
-#     更新或者创建数据表结构
-      ddl-auto: update
-#    控制台显示SQL
-    show-sql: true
-```
-
-
-
-# 七、启动配置原理
-
-几个重要的事件回调机制
-
-配置在META-INF/spring.factories
-
-**ApplicationContextInitializer**
-
-**SpringApplicationRunListener**
-
-
-
-只需要放在ioc容器中
-
-**ApplicationRunner**
-
-**CommandLineRunner**
-
-
-
-启动流程：
-
-## **1、创建SpringApplication对象**
-
-```java
-initialize(sources);
-private void initialize(Object[] sources) {
-    //保存主配置类
-    if (sources != null && sources.length > 0) {
-        this.sources.addAll(Arrays.asList(sources));
-    }
-    //判断当前是否一个web应用
-    this.webEnvironment = deduceWebEnvironment();
-    //从类路径下找到META-INF/spring.factories配置的所有ApplicationContextInitializer；然后保存起来
-    setInitializers((Collection) getSpringFactoriesInstances(
-        ApplicationContextInitializer.class));
-    //从类路径下找到ETA-INF/spring.factories配置的所有ApplicationListener
-    setListeners((Collection) getSpringFactoriesInstances(ApplicationListener.class));
-    //从多个配置类中找到有main方法的主配置类
-    this.mainApplicationClass = deduceMainApplicationClass();
-}
-```
-
-![](https://note.youdao.com/yws/public/resource/d2df8f46cb515e690d5ce36ac14d844d/xmlnote/990655E962574059B15CAAC18A917D09/1416)
-
-![](https://note.youdao.com/yws/public/resource/d2df8f46cb515e690d5ce36ac14d844d/xmlnote/1BC4590746754FAEA648F91F0E673D3D/1411)
-
-## 2、运行run方法
-
-```java
-public ConfigurableApplicationContext run(String... args) {
-   StopWatch stopWatch = new StopWatch();
-   stopWatch.start();
-   ConfigurableApplicationContext context = null;
-   FailureAnalyzers analyzers = null;
-   configureHeadlessProperty();
-    
-   //获取SpringApplicationRunListeners；从类路径下META-INF/spring.factories
-   SpringApplicationRunListeners listeners = getRunListeners(args);
-    //回调所有的获取SpringApplicationRunListener.starting()方法
-   listeners.starting();
-   try {
-       //封装命令行参数
-      ApplicationArguments applicationArguments = new DefaultApplicationArguments(
-            args);
-      //准备环境
-      ConfigurableEnvironment environment = prepareEnvironment(listeners,
-            applicationArguments);
-       		//创建环境完成后回调SpringApplicationRunListener.environmentPrepared()；表示环境准备完成
-       
-      Banner printedBanner = printBanner(environment);
-       
-       //创建ApplicationContext；决定创建web的ioc还是普通的ioc
-      context = createApplicationContext();
-       
-      analyzers = new FailureAnalyzers(context);
-       //准备上下文环境;将environment保存到ioc中；而且applyInitializers()；
-       //applyInitializers()：回调之前保存的所有的ApplicationContextInitializer的initialize方法
-       //回调所有的SpringApplicationRunListener的contextPrepared()；
-       //
-      prepareContext(context, environment, listeners, applicationArguments,
-            printedBanner);
-       //prepareContext运行完成以后回调所有的SpringApplicationRunListener的contextLoaded（）；
-       
-       //s刷新容器；ioc容器初始化（如果是web应用还会创建嵌入式的Tomcat）；Spring注解版
-       //扫描，创建，加载所有组件的地方；（配置类，组件，自动配置）
-      refreshContext(context);
-       //从ioc容器中获取所有的ApplicationRunner和CommandLineRunner进行回调
-       //ApplicationRunner先回调，CommandLineRunner再回调
-      afterRefresh(context, applicationArguments);
-       //所有的SpringApplicationRunListener回调finished方法
-      listeners.finished(context, null);
-      stopWatch.stop();
-      if (this.logStartupInfo) {
-         new StartupInfoLogger(this.mainApplicationClass)
-               .logStarted(getApplicationLog(), stopWatch);
-      }
-       //整个SpringBoot应用启动完成以后返回启动的ioc容器；
-      return context;
-   }
-   catch (Throwable ex) {
-      handleRunFailure(context, listeners, analyzers, ex);
-      throw new IllegalStateException(ex);
-   }
-}
-```
-
-## 3、事件监听机制
-
-配置在META-INF/spring.factories
-
-**ApplicationContextInitializer**
-
-```java
-public class HelloApplicationContextInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-    @Override
-    public void initialize(ConfigurableApplicationContext applicationContext) {
-        System.out.println("ApplicationContextInitializer...initialize..."+applicationContext);
-    }
-}
-
-```
-
-**SpringApplicationRunListener**
-
-```java
-public class HelloSpringApplicationRunListener implements SpringApplicationRunListener {
-
-    //必须有的构造器
-    public HelloSpringApplicationRunListener(SpringApplication application, String[] args){
-
-    }
-
-    @Override
-    public void starting() {
-        System.out.println("SpringApplicationRunListener...starting...");
-    }
-
-    @Override
-    public void environmentPrepared(ConfigurableEnvironment environment) {
-        Object o = environment.getSystemProperties().get("os.name");
-        System.out.println("SpringApplicationRunListener...environmentPrepared.."+o);
-    }
-
-    @Override
-    public void contextPrepared(ConfigurableApplicationContext context) {
-        System.out.println("SpringApplicationRunListener...contextPrepared...");
-    }
-
-    @Override
-    public void contextLoaded(ConfigurableApplicationContext context) {
-        System.out.println("SpringApplicationRunListener...contextLoaded...");
-    }
-
-    @Override
-    public void finished(ConfigurableApplicationContext context, Throwable exception) {
-        System.out.println("SpringApplicationRunListener...finished...");
-    }
-}
-
-```
-
-配置（META-INF/spring.factories）
-
-```properties
-org.springframework.context.ApplicationContextInitializer=\
-com.atguigu.springboot.listener.HelloApplicationContextInitializer
-
-org.springframework.boot.SpringApplicationRunListener=\
-com.atguigu.springboot.listener.HelloSpringApplicationRunListener
-```
-
-
-
-
-
-只需要放在ioc容器中
-
-**ApplicationRunner**
-
-```java
-@Component
-public class HelloApplicationRunner implements ApplicationRunner {
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        System.out.println("ApplicationRunner...run....");
-    }
-}
-```
-
-
-
-**CommandLineRunner**
-
-```java
-@Component
-public class HelloCommandLineRunner implements CommandLineRunner {
-    @Override
-    public void run(String... args) throws Exception {
-        System.out.println("CommandLineRunner...run..."+ Arrays.asList(args));
-    }
-}
-```
-
-
-
-# 八、自定义starter
-
-starter：
-
-​	1、这个场景需要使用到的依赖是什么？
-
-​	2、如何编写自动配置
-
-```java
-@Configuration  //指定这个类是一个配置类
-@ConditionalOnXXX  //在指定条件成立的情况下自动配置类生效
-@AutoConfigureAfter  //指定自动配置类的顺序
-@Bean  //给容器中添加组件
-
-@ConfigurationPropertie结合相关xxxProperties类来绑定相关的配置
-@EnableConfigurationProperties //让xxxProperties生效加入到容器中
-
-自动配置类要能加载
-将需要启动就加载的自动配置类，配置在META-INF/spring.factories
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.springframework.boot.autoconfigure.admin.SpringApplicationAdminJmxAutoConfiguration,\
-org.springframework.boot.autoconfigure.aop.AopAutoConfiguration,\
-```
-
-​	3、模式：
-
-启动器只用来做依赖导入；
-
-专门来写一个自动配置模块；
-
-启动器依赖自动配置；别人只需要引入启动器（starter）
-
-mybatis-spring-boot-starter；自定义启动器名-spring-boot-starter
-
-
-
-步骤：
-
-1）、启动器模块
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
-    <groupId>com.atguigu.starter</groupId>
-    <artifactId>atguigu-spring-boot-starter</artifactId>
-    <version>1.0-SNAPSHOT</version>
-
-    <!--启动器-->
-    <dependencies>
-
-        <!--引入自动配置模块-->
-        <dependency>
-            <groupId>com.atguigu.starter</groupId>
-            <artifactId>atguigu-spring-boot-starter-autoconfigurer</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-    </dependencies>
-
-</project>
-```
-
-2）、自动配置模块
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-   <modelVersion>4.0.0</modelVersion>
-
-   <groupId>com.atguigu.starter</groupId>
-   <artifactId>atguigu-spring-boot-starter-autoconfigurer</artifactId>
-   <version>0.0.1-SNAPSHOT</version>
-   <packaging>jar</packaging>
-
-   <name>atguigu-spring-boot-starter-autoconfigurer</name>
-   <description>Demo project for Spring Boot</description>
-
-   <parent>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-parent</artifactId>
-      <version>1.5.10.RELEASE</version>
-      <relativePath/> <!-- lookup parent from repository -->
-   </parent>
-
-   <properties>
-      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-      <java.version>1.8</java.version>
-   </properties>
-
-   <dependencies>
-
-      <!--引入spring-boot-starter；所有starter的基本配置-->
-      <dependency>
-         <groupId>org.springframework.boot</groupId>
-         <artifactId>spring-boot-starter</artifactId>
-      </dependency>
-
-   </dependencies>
-
-
-
-</project>
-
-```
-
-
-
-```java
-package com.atguigu.starter;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
-@ConfigurationProperties(prefix = "atguigu.hello")
-public class HelloProperties {
-
-    private String prefix;
-    private String suffix;
-
-    public String getPrefix() {
-        return prefix;
-    }
-
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
-    }
-
-    public String getSuffix() {
-        return suffix;
-    }
-
-    public void setSuffix(String suffix) {
-        this.suffix = suffix;
-    }
-}
-
-```
-
-```java
-package com.atguigu.starter;
-
-public class HelloService {
-
-    HelloProperties helloProperties;
-
-    public HelloProperties getHelloProperties() {
-        return helloProperties;
-    }
-
-    public void setHelloProperties(HelloProperties helloProperties) {
-        this.helloProperties = helloProperties;
-    }
-
-    public String sayHellAtguigu(String name){
-        return helloProperties.getPrefix()+"-" +name + helloProperties.getSuffix();
-    }
-}
-
-```
-
-```java
-package com.atguigu.starter;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-@Configuration
-@ConditionalOnWebApplication //web应用才生效
-@EnableConfigurationProperties(HelloProperties.class)
-public class HelloServiceAutoConfiguration {
-
-    @Autowired
-    HelloProperties helloProperties;
-    @Bean
-    public HelloService helloService(){
-        HelloService service = new HelloService();
-        service.setHelloProperties(helloProperties);
-        return service;
-    }
-}
-
-```
 
 # 更多SpringBoot整合示例
 
