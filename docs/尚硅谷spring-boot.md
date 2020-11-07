@@ -1,6 +1,6 @@
 # 一   Spring Boot 入门
 
-### 1      MAVEN设置
+## 1      MAVEN设置
 
 给maven 的settings.xml配置文件的profiles标签添加
 
@@ -19,11 +19,10 @@
 </profile>
 ```
 
+-----------------
 ## 2   Spring Boot HelloWorld
 
 一个功能：浏览器发送hello请求，服务器接受请求并处理，响应Hello World字符串；
-
-
 
 ### 2.1   创建一个maven工程；（jar）
 
@@ -76,8 +75,6 @@ public class HelloController {
 
 ```
 
-
-
 ### 2.5   运行主程序测试
 
 ### 2.6   简化部署
@@ -96,6 +93,7 @@ public class HelloController {
 
 将这个应用打成jar包，直接使用java -jar的命令进行执行；
 
+-----------------
 ## 3   Hello World探究
 
 ### 3.1  POM文件
@@ -137,11 +135,7 @@ Spring Boot的版本仲裁中心；
 
 ​	spring-boot-starter：spring-boot场景启动器；帮我们导入了web模块正常运行所依赖的组件；
 
-
-
 Spring Boot将所有的功能场景都抽取出来，做成一个个的starters（启动器），只需要在项目里面引入这些starter相关场景的所有依赖都会导入进来。要用什么功能就导入什么场景的启动器
-
-
 
 ### 3.2   主程序类，主入口类
 
@@ -178,19 +172,17 @@ public class HelloWorldMainApplication {
 public @interface SpringBootApplication {
 ```
 
-@**SpringBootConfiguration**:Spring Boot的配置类；
+**@SpringBootConfiguration**：Spring Boot的配置类；
 
-​		标注在某个类上，表示这是一个Spring Boot的配置类；
+标注在某个类上，表示这是一个Spring Boot的配置类；
 
-​		@**Configuration**:配置类上来标注这个注解；
+**@Configuration**:：配置类上来标注这个注解；
 
-​			配置类 -----  配置文件；配置类也是容器中的一个组件；@Component
+​**@Component**：配置类 -----  配置文件；配置类也是容器中的一个组件；
 
+**@EnableAutoConfiguration**：开启自动配置功能；
 
-
-@**EnableAutoConfiguration**：开启自动配置功能；
-
-​		以前我们需要配置的东西，Spring Boot帮我们自动配置；@**EnableAutoConfiguration**告诉SpringBoot开启自动配置功能；这样自动配置才能生效；
+​以前我们需要配置的东西，Spring Boot帮我们自动配置；@**EnableAutoConfiguration**告诉SpringBoot开启自动配置功能；这样自动配置才能生效；
 
 ```java
 @AutoConfigurationPackage
@@ -204,7 +196,7 @@ public @interface EnableAutoConfiguration {
 
 ​		Spring的底层注解@Import，给容器中导入一个组件；导入的组件由AutoConfigurationPackages.Registrar.class；
 
-==将主配置类（@SpringBootApplication标注的类）的所在包及下面所有子包里面的所有组件扫描到Spring容器；==
+将主配置类（@SpringBootApplication标注的类）的所在包及下面所有子包里面的所有组件扫描到Spring容器；
 
 ​	@**Import**(EnableAutoConfigurationImportSelector.class)；
 
@@ -221,13 +213,11 @@ public @interface EnableAutoConfiguration {
 ​		SpringFactoriesLoader.loadFactoryNames(EnableAutoConfiguration.class,classLoader)；
 
 
-
 ==Spring Boot在启动的时候从类路径下的META-INF/spring.factories中获取EnableAutoConfiguration指定的值，将这些值作为自动配置类导入到容器中，自动配置类就生效，帮我们进行自动配置工作；==以前我们需要自己配置的东西，自动配置类都帮我们；
 
 J2EE的整体整合解决方案和自动配置都在spring-boot-autoconfigure-1.5.9.RELEASE.jar；
 
-
-
+--------------------------
 ## 4   快速创建Spring Boot项目
 
 默认生成的Spring Boot项目；
@@ -239,7 +229,6 @@ J2EE的整体整合解决方案和自动配置都在spring-boot-autoconfigure-1.
   - application.properties：Spring Boot应用的配置文件；可以修改一些默认设置；
 
 -------------
-
 ##  5  配置文件
 
 SpringBoot使用一个全局的配置文件，配置文件名是固定的；
@@ -344,7 +333,7 @@ pets:
 pets: [cat,dog,pig]
 ```
 
-## 5.3   配置文件值注入
+### 5.3   配置文件值注入
 
 配置文件
 
@@ -531,9 +520,9 @@ public class MyAppConfig {
 }
 ```
 
-## 5.4   配置文件占位符
+### 5.4   配置文件占位符
 
-### 5.4.1  随机数
+#### 5.4.1  随机数
 
 ```java
 ${random.value}、${random.int}、${random.long}
@@ -541,7 +530,7 @@ ${random.int(10)}、${random.int[1024,65536]}
 
 ```
 
-### 5.4.2  占位符获取之前配置的值，如果没有可以是用:指定默认值
+#### 5.4.2  占位符获取之前配置的值，如果没有可以是用:指定默认值
 
 ```properties
 person.last-name=张三${random.uuid}
@@ -555,16 +544,16 @@ person.dog.name=${person.hello:hello}_dog
 person.dog.age=15
 ```
 
-## 5.5   Profile
+### 5.5   Profile
 
-### 5.5.1   多Profile文件
+#### 5.5.1   多Profile文件
 
 我们在主配置文件编写的时候，文件名可以是   application-{profile}.properties/yml
 
 默认使用application.properties的配置；
 
 
-### 5.5.2    yml支持多文档块方式
+#### 5.5.2    yml支持多文档块方式
 
 ```yml
 
@@ -590,7 +579,7 @@ spring:
 ```
 
 
-### 5.5.3、激活指定profile
+#### 5.5.3、激活指定profile
 
 ​	1、在配置文件中指定  spring.profiles.active=dev
 
@@ -605,7 +594,7 @@ spring:
 ​		-Dspring.profiles.active=dev
 
 
-## 5.6  配置文件加载位置
+### 5.6  配置文件加载位置
 
 springboot 启动会扫描以下位置的application.properties或者application.yml文件作为Spring boot的默认配置文件
 
@@ -622,14 +611,13 @@ springboot 启动会扫描以下位置的application.properties或者application
 SpringBoot会从这四个位置全部加载主配置文件；**互补配置**；
 
 
-
-==我们还可以通过spring.config.location来改变默认的配置文件位置==
+我们还可以通过spring.config.location来改变默认的配置文件位置
 
 **项目打包好以后，我们可以使用命令行参数的形式，启动项目的时候来指定配置文件的新位置；指定配置文件和默认加载的这些配置文件共同起作用形成互补配置；**
 
 java -jar spring-boot-02-config-02-0.0.1-SNAPSHOT.jar --spring.config.location=G:/application.properties
 
-## 5.7  外部配置加载顺序
+### 5.7  外部配置加载顺序
 
 **SpringBoot也可以从以下位置加载配置； 优先级从高到低；高优先级的配置覆盖低优先级的配置，所有的配置会形成互补配置**
 
@@ -672,13 +660,13 @@ java -jar spring-boot-02-config-02-0.0.1-SNAPSHOT.jar --server.port=8087  --serv
 
 [参考官方文档](https://docs.spring.io/spring-boot/docs/1.5.9.RELEASE/reference/htmlsingle/#boot-features-external-config)
 
-## 5.8   自动配置原理
+### 5.8   自动配置原理
 
 配置文件到底能写什么？怎么写？自动配置原理；
 
 [配置文件能配置的属性参照](https://docs.spring.io/spring-boot/docs/1.5.9.RELEASE/reference/htmlsingle/#common-application-properties)
 
-### 5.8.1  自动配置原理
+#### 5.8.1  自动配置原理
 
 1）、SpringBoot启动的时候加载主配置类，开启了自动配置功能 ==@EnableAutoConfiguration==
 
@@ -871,7 +859,7 @@ xxxxAutoConfigurartion：自动配置类；
 xxxxProperties:封装配置文件中相关属性；
 
 
-### 5.8.2   细节
+#### 5.8.2   细节
 
 
 #### 1、@Conditional派生注解（Spring注解版原生的@Conditional作用）
@@ -925,10 +913,10 @@ Negative matches:（没有启动，没有匹配成功的自动配置类）
          - @ConditionalOnClass did not find required classes 'org.aspectj.lang.annotation.Aspect', 'org.aspectj.lang.reflect.Advice' (OnClassCondition)
         
 ```
+--------------------------
+## 6  日志
 
-# 6  日志
-
-##  6.1   日志框架
+###  6.1   日志框架
 
 SpringBoot写了一个统一的接口层；日志门面（日志的一个抽象层）；logging-abstract.jar；
 给项目中导入具体的日志实现就行了；
@@ -953,9 +941,9 @@ SpringBoot：底层是Spring框架，Spring框架默认是用JCL；‘
 ​	**SpringBoot选用 SLF4j和logback；**
 
 
-## 6.2   SLF4j使用
+### 6.2   SLF4j使用
 
-### 6.2.1  如何在系统中使用 SLF4j  
+#### 6.2.1  如何在系统中使用 SLF4j  
 
 以后开发的时候，日志记录方法的调用，不应该来直接调用日志的实现类，而是调用日志抽象层里面的方法；
 
@@ -979,7 +967,7 @@ public class HelloWorld {
 
 每一个日志的实现框架都有自己的配置文件。使用slf4j以后，**配置文件还是做成日志实现框架自己本身的配置文件；**
 
-### 6.2.2  遗留问题
+#### 6.2.2  遗留问题
 
 （slf4j+logback）: Spring（commons-logging）、Hibernate（jboss-logging）、MyBatis、xxxx
 
@@ -997,7 +985,7 @@ public class HelloWorld {
 
 
 
-## 6.3  SpringBoot日志关系
+### 6.3  SpringBoot日志关系
 
 ```xml
 		<dependency>
@@ -1058,9 +1046,9 @@ public abstract class LogFactory {
 
 **==SpringBoot能自动适配所有的日志，而且底层使用slf4j+logback的方式记录日志，引入其他框架的时候，只需要把这个框架依赖的日志框架排除掉即可；==**
 
-## 6.4  日志使用；
+### 6.4  日志使用；
 
-###  6.4.1  默认配置
+####  6.4.1  默认配置
 
 SpringBoot默认帮我们配置好了日志；
 
@@ -1120,7 +1108,7 @@ logging.pattern.file=%d{yyyy-MM-dd} === [%thread] === %-5level === %logger{50} =
 | 指定文件名        | (none)       | my.log   | 输出日志到my.log文件           |
 | (none)       | 指定目录         | /var/log | 输出到指定目录的 spring.log 文件中 |
 
-### 6.4.2  指定配置
+#### 6.4.2  指定配置
 
 给类路径下放上每个日志框架自己的配置文件即可；SpringBoot就不使用他默认配置的了
 
@@ -1171,7 +1159,7 @@ logging.pattern.file=%d{yyyy-MM-dd} === [%thread] === %-5level === %logger{50} =
 
  `no applicable action for [springProfile]`
 
-##  6.5  切换日志框架
+###  6.5  切换日志框架
 
 可以按照slf4j的日志适配图，进行相关的切换；
 
@@ -1224,41 +1212,32 @@ logging.pattern.file=%d{yyyy-MM-dd} === [%thread] === %-5level === %logger{50} =
 
 -----------------
 
-# 四   Web开发
+## 7   Web开发
 
-## 1   简介
+### 7.1   简介
 
-使用SpringBoot；
+**1）创建SpringBoot应用，选中我们需要的模块；**
 
-**1）、创建SpringBoot应用，选中我们需要的模块；**
+**2）SpringBoot已经默认将这些场景配置好了，只需要在配置文件中指定少量配置就可以运行起来**
 
-**2）、SpringBoot已经默认将这些场景配置好了，只需要在配置文件中指定少量配置就可以运行起来**
-
-**3）、自己编写业务代码；**
-
-
+**3）自己编写业务代码；**
 
 **自动配置原理？**
 
-这个场景SpringBoot帮我们配置了什么？能不能修改？能修改哪些配置？能不能扩展？xxx
+这个场景SpringBoot帮我们配置了什么？能不能修改？能修改哪些配置？能不能扩展？
 
 ```
 xxxxAutoConfiguration：帮我们给容器中自动配置组件；
 xxxxProperties:配置类来封装配置文件的内容；
-
 ```
 
-
-
-## 2   SpringBoot对静态资源的映射规则；
+### 7.2   SpringBoot对静态资源的映射规则；
 
 ```java
 @ConfigurationProperties(prefix = "spring.resources", ignoreUnknownFields = false)
 public class ResourceProperties implements ResourceLoaderAware {
   //可以设置和静态资源有关的参数，缓存时间等
 ```
-
-
 
 ```java
 	WebMvcAuotConfiguration：
@@ -1330,7 +1309,7 @@ public class ResourceProperties implements ResourceLoaderAware {
 
 
 
-==1）、所有 /webjars/** ，都去 classpath:/META-INF/resources/webjars/ 找资源；==
+1). 所有 /webjars/** ，都去 classpath:/META-INF/resources/webjars/ 找资源；==
 
 ​	webjars：以jar包的方式引入静态资源；
 
@@ -1351,7 +1330,7 @@ localhost:8080/webjars/jquery/3.3.1/jquery.js
 
 
 
-==2）、"/**" 访问当前项目的任何资源，都去（静态资源的文件夹）找映射==
+2). "/**" 访问当前项目的任何资源，都去（静态资源的文件夹）找映射==
 
 ```
 "classpath:/META-INF/resources/", 
@@ -1363,14 +1342,14 @@ localhost:8080/webjars/jquery/3.3.1/jquery.js
 
 localhost:8080/abc ===  去静态资源文件夹里面找abc
 
-==3）、欢迎页； 静态资源文件夹下的所有index.html页面；被"/**"映射；==
+3). 欢迎页； 静态资源文件夹下的所有index.html页面；被"/**"映射；==
 
 ​	localhost:8080/   找index页面
 
-==4）、所有的 **/favicon.ico  都是在静态资源文件下找；==
+4). 所有的 **/favicon.ico  都是在静态资源文件下找；==
 
 
-## 3   全面接管SpringMVC；
+### 7.3   全面接管SpringMVC
 
 SpringBoot对SpringMVC的自动配置不需要了，所有都是我们自己配置；所有的SpringMVC的自动配置都失效了
 
@@ -1396,21 +1375,18 @@ public class MyMvcConfig extends WebMvcConfigurerAdapter {
 为什么@EnableWebMvc自动配置就失效了；
 
 1）@EnableWebMvc的核心
-
 ```java
 @Import(DelegatingWebMvcConfiguration.class)
 public @interface EnableWebMvc {
 ```
 
-2）、
-
+2）
 ```java
 @Configuration
 public class DelegatingWebMvcConfiguration extends WebMvcConfigurationSupport {
 ```
 
-3）、
-
+3）
 ```java
 @Configuration
 @ConditionalOnWebApplication
@@ -1424,13 +1400,13 @@ public class DelegatingWebMvcConfiguration extends WebMvcConfigurationSupport {
 public class WebMvcAutoConfiguration {
 ```
 
-4）、@EnableWebMvc将WebMvcConfigurationSupport组件导入进来；
+4） @EnableWebMvc将WebMvcConfigurationSupport组件导入进来；
 
-5）、导入的WebMvcConfigurationSupport只是SpringMVC最基本的功能；
+5） 导入的WebMvcConfigurationSupport只是SpringMVC最基本的功能；
 
 
 
-## 4  如何修改SpringBoot的默认配置
+### 7.4  如何修改SpringBoot的默认配置
 
 模式：
 
@@ -1440,9 +1416,8 @@ public class WebMvcAutoConfiguration {
 
 ​	3）、在SpringBoot中会有很多的xxxCustomizer帮助我们进行定制配置
 
-## 6、RestfulCRUD
 
-### 4.1   默认访问首页
+### 7.5   默认访问首页
 
 ```java
 
@@ -1474,23 +1449,19 @@ public class MyMvcConfig extends WebMvcConfigurerAdapter {
 
 ```
 
-### 4.2    国际化
+### 7.6    国际化
 
-1）、编写国际化配置文件；**
+1）、编写国际化配置文件；
 
 2）、使用ResourceBundleMessageSource管理国际化资源文件
 
 3）、在页面使用fmt:message取出国际化内容
-
-
 
 步骤：
 
 1）、编写国际化配置文件，抽取页面需要显示的国际化消息
 
 ![](https://note.youdao.com/yws/public/resource/d2df8f46cb515e690d5ce36ac14d844d/xmlnote/44DEADDBED054D949821801D49532C90/1409)
-
-
 
 2）、SpringBoot自动配置好了管理国际化资源文件的组件；
 
@@ -1525,12 +1496,9 @@ public class MessageSourceAutoConfiguration {
 	}
 ```
 
-
-
 3）、去页面获取国际化的值；
 
 ![](https://note.youdao.com/yws/public/resource/d2df8f46cb515e690d5ce36ac14d844d/xmlnote/70A0498897F245BCB13E43F81C208A49/1404)
-
 
 
 ```html
@@ -1573,7 +1541,6 @@ public class MessageSourceAutoConfiguration {
 ```
 
 效果：根据浏览器语言设置的信息切换了国际化；
-
 
 
 原理：
@@ -1631,105 +1598,11 @@ public class MyLocaleResolver implements LocaleResolver {
 
 ```
 
-### 3）、登陆
-
-开发期间模板引擎页面修改以后，要实时生效
-
-1）、禁用模板引擎的缓存
-
-```
-# 禁用缓存
-spring.thymeleaf.cache=false 
-```
-
-2）、页面修改完成以后ctrl+f9：重新编译；
 
 
+### 7.7  错误处理机制
 
-登陆错误消息的显示
-
-```html
-<p style="color: red" th:text="${msg}" th:if="${not #strings.isEmpty(msg)}"></p>
-```
-
-
-
-### 4）、拦截器进行登陆检查
-
-拦截器
-
-```java
-
-/**
- * 登陆检查，
- */
-public class LoginHandlerInterceptor implements HandlerInterceptor {
-    //目标方法执行之前
-    @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        Object user = request.getSession().getAttribute("loginUser");
-        if(user == null){
-            //未登陆，返回登陆页面
-            request.setAttribute("msg","没有权限请先登陆");
-            request.getRequestDispatcher("/index.html").forward(request,response);
-            return false;
-        }else{
-            //已登陆，放行请求
-            return true;
-        }
-
-    }
-
-    @Override
-    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-
-    }
-
-    @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-
-    }
-}
-
-```
-
-
-
-注册拦截器
-
-```java
-  //所有的WebMvcConfigurerAdapter组件都会一起起作用
-    @Bean //将组件注册在容器
-    public WebMvcConfigurerAdapter webMvcConfigurerAdapter(){
-        WebMvcConfigurerAdapter adapter = new WebMvcConfigurerAdapter() {
-            @Override
-            public void addViewControllers(ViewControllerRegistry registry) {
-                registry.addViewController("/").setViewName("login");
-                registry.addViewController("/index.html").setViewName("login");
-                registry.addViewController("/main.html").setViewName("dashboard");
-            }
-
-            //注册拦截器
-            @Override
-            public void addInterceptors(InterceptorRegistry registry) {
-                //super.addInterceptors(registry);
-                //静态资源；  *.css , *.js
-                //SpringBoot已经做好了静态资源映射
-                registry.addInterceptor(new LoginHandlerInterceptor()).addPathPatterns("/**")
-                        .excludePathPatterns("/index.html","/","/user/login");
-            }
-        };
-        return adapter;
-    }
-```
-
-
-
-
-
-## 7、错误处理机制
-
-### 1）、SpringBoot默认的错误处理机制
+**SpringBoot默认的错误处理机制**
 
 默认效果：
 
@@ -1769,8 +1642,6 @@ public class LoginHandlerInterceptor implements HandlerInterceptor {
 	}
 ```
 
-
-
 ​	2、BasicErrorController：处理默认/error请求
 
 ```java
@@ -1801,15 +1672,12 @@ public class BasicErrorController extends AbstractErrorController {
 	}
 ```
 
-
-
 ​	3、ErrorPageCustomizer：
 
 ```java
 	@Value("${error.path:/error}")
 	private String path = "/error";  系统出现错误以后来到error请求进行处理；（web.xml注册的错误页面规则）
 ```
-
 
 
 ​	4、DefaultErrorViewResolver：
@@ -1840,7 +1708,6 @@ public class BasicErrorController extends AbstractErrorController {
 		return resolveResource(errorViewName, model);
 	}
 ```
-
 
 
 ​	步骤：
