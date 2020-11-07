@@ -21,9 +21,7 @@
 
 ## 2   Spring Boot HelloWorld
 
-一个功能：
-
-浏览器发送hello请求，服务器接受请求并处理，响应Hello World字符串；
+一个功能：浏览器发送hello请求，服务器接受请求并处理，响应Hello World字符串；
 
 
 
@@ -230,10 +228,7 @@ J2EE的整体整合解决方案和自动配置都在spring-boot-autoconfigure-1.
 
 
 
-## 4   使用Spring Initializer快速创建Spring Boot项目
-
-### 4.1   IDEA：使用 Spring Initializer快速创建项目
-### 4.2   STS使用 Spring Starter Project快速创建项目
+## 4   快速创建Spring Boot项目
 
 默认生成的Spring Boot项目；
 
@@ -245,11 +240,7 @@ J2EE的整体整合解决方案和自动配置都在spring-boot-autoconfigure-1.
 
 -------------
 
-
-
-# 二   配置文件
-
-## 1  配置文件
+##  5  配置文件
 
 SpringBoot使用一个全局的配置文件，配置文件名是固定的；
 
@@ -257,11 +248,7 @@ SpringBoot使用一个全局的配置文件，配置文件名是固定的；
 
 •application.yml
 
-
-
 配置文件的作用：修改SpringBoot自动配置的默认值；SpringBoot在底层都给我们自动配置好；
-
-
 
 YAML（YAML Ain't Markup Language）
 
@@ -290,11 +277,7 @@ server:
 </server>
 ```
 
-
-
-## 2    YAML语法：
-
-### 2.1   基本语法
+###  5.1    YAML基本语法：
 
 k:(空格)v：表示一对键值对（空格必须有）；
 
@@ -308,7 +291,7 @@ server:
 
 属性和值也是大小写敏感；
 
-### 2.2  值的写法
+### 5.2  值的写法
 
 #### 字面量：普通的值（数字，字符串，布尔）
 
@@ -344,8 +327,6 @@ friends:
 friends: {lastName: zhangsan,age: 18}
 ```
 
-
-
 #### 数组（List、Set）：
 
 用- 值表示数组中的一个元素
@@ -363,9 +344,7 @@ pets:
 pets: [cat,dog,pig]
 ```
 
-
-
-## 2.3   配置文件值注入
+## 5.3   配置文件值注入
 
 配置文件
 
@@ -410,8 +389,6 @@ public class Person {
 
 ```
 
-
-
 我们可以导入配置文件处理器，以后编写配置就有提示了
 
 ```xml
@@ -423,9 +400,7 @@ public class Person {
 		</dependency>
 ```
 
-
-
-#### 2.3.1   @Value获取值和@ConfigurationProperties获取值比较
+#### 5.3.1   @Value获取值和@ConfigurationProperties获取值比较
 
 |            | @ConfigurationProperties | @Value |
 | ---------- | ------------------------ | ------ |
@@ -441,9 +416,7 @@ public class Person {
 
 如果说，我们专门编写了一个javaBean来和配置文件进行映射，我们就直接使用@ConfigurationProperties；
 
-
-
-#### 2.3.2   配置文件注入值数据校验
+#### 5.3.2   配置文件注入值数据校验
 
 ```java
 @Component
@@ -472,9 +445,7 @@ public class Person {
     private Dog dog;
 ```
 
-
-
-#### 2.3.3   @PropertySource&@ImportResource&@Bean
+#### 5.3.3   @PropertySource&@ImportResource&@Bean
 
 @**PropertySource**：加载指定的配置文件；
 
@@ -511,8 +482,6 @@ public class Person {
 
 ```
 
-
-
 @**ImportResource**：导入Spring的配置文件，让配置文件里面的内容生效；
 
 Spring Boot里面没有Spring的配置文件，我们自己编写的配置文件，也不能自动识别；
@@ -523,8 +492,6 @@ Spring Boot里面没有Spring的配置文件，我们自己编写的配置文件
 @ImportResource(locations = {"classpath:beans.xml"})
 导入Spring的配置文件让其生效
 ```
-
-
 
 不来编写Spring的配置文件
 
@@ -564,9 +531,9 @@ public class MyAppConfig {
 }
 ```
 
-## 2.4   配置文件占位符
+## 5.4   配置文件占位符
 
-### 2.4.1  随机数
+### 5.4.1  随机数
 
 ```java
 ${random.value}、${random.int}、${random.long}
@@ -574,9 +541,7 @@ ${random.int(10)}、${random.int[1024,65536]}
 
 ```
 
-
-
-### 2.4.2  占位符获取之前配置的值，如果没有可以是用:指定默认值
+### 5.4.2  占位符获取之前配置的值，如果没有可以是用:指定默认值
 
 ```properties
 person.last-name=张三${random.uuid}
@@ -590,19 +555,16 @@ person.dog.name=${person.hello:hello}_dog
 person.dog.age=15
 ```
 
+## 5.5   Profile
 
-
-## 2.5   Profile
-
-### 2.5.1   多Profile文件
+### 5.5.1   多Profile文件
 
 我们在主配置文件编写的时候，文件名可以是   application-{profile}.properties/yml
 
 默认使用application.properties的配置；
 
 
-
-### 2.5.2    yml支持多文档块方式
+### 5.5.2    yml支持多文档块方式
 
 ```yml
 
@@ -628,10 +590,7 @@ spring:
 ```
 
 
-
-
-
-### 2.5.3、激活指定profile
+### 5.5.3、激活指定profile
 
 ​	1、在配置文件中指定  spring.profiles.active=dev
 
@@ -646,8 +605,7 @@ spring:
 ​		-Dspring.profiles.active=dev
 
 
-
-## 2.6  配置文件加载位置
+## 5.6  配置文件加载位置
 
 springboot 启动会扫描以下位置的application.properties或者application.yml文件作为Spring boot的默认配置文件
 
@@ -671,11 +629,11 @@ SpringBoot会从这四个位置全部加载主配置文件；**互补配置**；
 
 java -jar spring-boot-02-config-02-0.0.1-SNAPSHOT.jar --spring.config.location=G:/application.properties
 
-## 2.7  外部配置加载顺序
+## 5.7  外部配置加载顺序
 
-**==SpringBoot也可以从以下位置加载配置； 优先级从高到低；高优先级的配置覆盖低优先级的配置，所有的配置会形成互补配置==**
+**SpringBoot也可以从以下位置加载配置； 优先级从高到低；高优先级的配置覆盖低优先级的配置，所有的配置会形成互补配置**
 
-**1.命令行参数**
+**1. 命令行参数**
 
 所有的配置都可以在命令行上进行指定
 
@@ -684,52 +642,43 @@ java -jar spring-boot-02-config-02-0.0.1-SNAPSHOT.jar --server.port=8087  --serv
 多个配置用空格分开； --配置项=值
 
 
+**2. 来自java:comp/env的JNDI属性**
 
-2.来自java:comp/env的JNDI属性
+**3. Java系统属性 (System.getProperties())**
 
-3.Java系统属性（System.getProperties()）
+**4. 操作系统环境变量**
 
-4.操作系统环境变量
-
-5.RandomValuePropertySource配置的random.*属性值
-
-
+**5. RandomValuePropertySource配置的random属性值**
 
 ==**由jar包外向jar包内进行寻找；**==
 
 ==**优先加载带profile**==
 
-**6.jar包外部的application-{profile}.properties或application.yml(带spring.profile)配置文件**
+**6. jar包外部的application-{profile}.properties或application.yml(带spring.profile)配置文件**
 
-**7.jar包内部的application-{profile}.properties或application.yml(带spring.profile)配置文件**
-
-
+**7. jar包内部的application-{profile}.properties或application.yml(带spring.profile)配置文件**
 
 ==**再来加载不带profile**==
 
-**8.jar包外部的application.properties或application.yml(不带spring.profile)配置文件**
+**8. jar包外部的application.properties或application.yml(不带spring.profile)配置文件**
 
-**9.jar包内部的application.properties或application.yml(不带spring.profile)配置文件**
+**9. jar包内部的application.properties或application.yml(不带spring.profile)配置文件**
 
+**10. @Configuration注解类上的@PropertySource**
 
-
-10.@Configuration注解类上的@PropertySource
-
-11.通过SpringApplication.setDefaultProperties指定的默认属性
+**11. 通过SpringApplication.setDefaultProperties指定的默认属性**
 
 所有支持的配置加载来源；
 
 [参考官方文档](https://docs.spring.io/spring-boot/docs/1.5.9.RELEASE/reference/htmlsingle/#boot-features-external-config)
 
-## 2.8   自动配置原理
+## 5.8   自动配置原理
 
 配置文件到底能写什么？怎么写？自动配置原理；
 
 [配置文件能配置的属性参照](https://docs.spring.io/spring-boot/docs/1.5.9.RELEASE/reference/htmlsingle/#common-application-properties)
 
-
-
-### 2.8.1  自动配置原理
+### 5.8.1  自动配置原理
 
 1）、SpringBoot启动的时候加载主配置类，开启了自动配置功能 ==@EnableAutoConfiguration==
 
@@ -741,7 +690,7 @@ java -jar spring-boot-02-config-02-0.0.1-SNAPSHOT.jar --server.port=8087  --serv
 
 - List<String> configurations = getCandidateConfigurations(annotationMetadata,      attributes);获取候选的配置
 
-  - ```java
+ - ```java
     SpringFactoriesLoader.loadFactoryNames()
     扫描所有jar包类路径下  META-INF/spring.factories
     把扫描到的这些文件的内容包装成properties对象
@@ -749,9 +698,7 @@ java -jar spring-boot-02-config-02-0.0.1-SNAPSHOT.jar --server.port=8087  --serv
 
     ```
 
-    ​
-
-**==将 类路径下  META-INF/spring.factories 里面配置的所有EnableAutoConfiguration的值加入到了容器中；==**
+**将 类路径下  META-INF/spring.factories 里面配置的所有EnableAutoConfiguration的值加入到了容器中；**
 
 ```properties
 # Auto Configure
@@ -896,11 +843,6 @@ public class HttpEncodingAutoConfiguration {
 一但这个配置类生效；这个配置类就会给容器中添加各种组件；这些组件的属性是从对应的properties类中获取的，这些类里面的每一个属性又是和配置文件绑定的；
 
 
-
-
-
-
-
 5）、所有在配置文件中能配置的属性都是在xxxxProperties类中封装者‘；配置文件能配置什么就可以参照某个功能对应的这个属性类
 
 ```java
@@ -909,10 +851,6 @@ public class HttpEncodingProperties {
 
    public static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
 ```
-
-
-
-
 
 **精髓：**
 
@@ -933,9 +871,7 @@ xxxxAutoConfigurartion：自动配置类；
 xxxxProperties:封装配置文件中相关属性；
 
 
-
-### 2.8.2   细节
-
+### 5.8.2   细节
 
 
 #### 1、@Conditional派生注解（Spring注解版原生的@Conditional作用）
@@ -961,7 +897,7 @@ xxxxProperties:封装配置文件中相关属性；
 
 我们怎么知道哪些自动配置类生效；
 
-**==我们可以通过启用  debug=true属性；来让控制台打印自动配置报告==**，这样我们就可以很方便的知道哪些自动配置类生效；
+**我们可以通过启用  debug=true属性；来让控制台打印自动配置报告**，这样我们就可以很方便的知道哪些自动配置类生效；
 
 ```java
 =========================
@@ -990,19 +926,12 @@ Negative matches:（没有启动，没有匹配成功的自动配置类）
         
 ```
 
+# 6  日志
 
+##  6.1   日志框架
 
-
-
-# 三  日志
-
-## 1   日志框架
-
-
-​			SpringBoot写了一个统一的接口层；日志门面（日志的一个抽象层）；logging-abstract.jar；
-
-​			给项目中导入具体的日志实现就行了；
-
+SpringBoot写了一个统一的接口层；日志门面（日志的一个抽象层）；logging-abstract.jar；
+给项目中导入具体的日志实现就行了；
 
 
 **市面上的日志框架；**
@@ -1019,17 +948,14 @@ JUL、JCL、Jboss-logging、logback、log4j、log4j2、slf4j....
 
 日志实现：Logback；
 
-
-
 SpringBoot：底层是Spring框架，Spring框架默认是用JCL；‘
 
-​	**==SpringBoot选用 SLF4j和logback；==**
+​	**SpringBoot选用 SLF4j和logback；**
 
 
+## 6.2   SLF4j使用
 
-## 2   SLF4j使用
-
-### 2.1  如何在系统中使用 SLF4j   https://www.slf4j.org
+### 6.2.1  如何在系统中使用 SLF4j  
 
 以后开发的时候，日志记录方法的调用，不应该来直接调用日志的实现类，而是调用日志抽象层里面的方法；
 
@@ -1053,7 +979,7 @@ public class HelloWorld {
 
 每一个日志的实现框架都有自己的配置文件。使用slf4j以后，**配置文件还是做成日志实现框架自己本身的配置文件；**
 
-### 2.2  遗留问题
+### 6.2.2  遗留问题
 
 （slf4j+logback）: Spring（commons-logging）、Hibernate（jboss-logging）、MyBatis、xxxx
 
@@ -1071,7 +997,7 @@ public class HelloWorld {
 
 
 
-## 3  SpringBoot日志关系
+## 6.3  SpringBoot日志关系
 
 ```xml
 		<dependency>
@@ -1079,8 +1005,6 @@ public class HelloWorld {
 			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
 ```
-
-
 
 SpringBoot使用它来做日志功能；
 
@@ -1115,7 +1039,6 @@ public abstract class LogFactory {
 ![](https://note.youdao.com/yws/public/resource/d2df8f46cb515e690d5ce36ac14d844d/xmlnote/481DA77143E1442EB831CAFF9BDD968D/1415)
 
 
-
 ​	4）、如果我们要引入其他框架？一定要把这个框架的默认日志依赖移除掉？
 
 ​			Spring框架用的是commons-logging；
@@ -1135,9 +1058,9 @@ public abstract class LogFactory {
 
 **==SpringBoot能自动适配所有的日志，而且底层使用slf4j+logback的方式记录日志，引入其他框架的时候，只需要把这个框架依赖的日志框架排除掉即可；==**
 
-## 4  日志使用；
+## 6.4  日志使用；
 
-### 4.1  默认配置
+###  6.4.1  默认配置
 
 SpringBoot默认帮我们配置好了日志；
 
@@ -1162,9 +1085,7 @@ SpringBoot默认帮我们配置好了日志；
 	}
 ```
 
-
-
-        日志输出格式：
+    日志输出格式：
     		%d表示日期时间，
     		%thread表示线程名，
     		%-5level：级别从左显示5个字符宽度
@@ -1199,7 +1120,7 @@ logging.pattern.file=%d{yyyy-MM-dd} === [%thread] === %-5level === %logger{50} =
 | 指定文件名        | (none)       | my.log   | 输出日志到my.log文件           |
 | (none)       | 指定目录         | /var/log | 输出到指定目录的 spring.log 文件中 |
 
-### 4.2  指定配置
+### 6.4.2  指定配置
 
 给类路径下放上每个日志框架自己的配置文件即可；SpringBoot就不使用他默认配置的了
 
@@ -1246,16 +1167,15 @@ logging.pattern.file=%d{yyyy-MM-dd} === [%thread] === %-5level === %logger{50} =
 ```
 
 
-
 如果使用logback.xml作为日志配置文件，还要使用profile功能，会有以下错误
 
  `no applicable action for [springProfile]`
 
-## 5  切换日志框架
+##  6.5  切换日志框架
 
 可以按照slf4j的日志适配图，进行相关的切换；
 
-slf4j+log4j方式 :
+**slf4j+log4j方式 :**
 
 ```xml
 <dependency>
@@ -1282,7 +1202,7 @@ slf4j+log4j方式 :
 这种替换其实没啥意义，因为作者就是因为log4j实现不太玩完美，所以才又写了logback,所以开发中一般常用的是logback或者log4j2
 
 
-slf4j+log4j2方式 :
+**slf4j+log4j2方式 :**
 
 ```xml
    <dependency>
@@ -3576,17 +3496,3 @@ public class HelloServiceAutoConfiguration {
 # 更多SpringBoot整合示例
 
 https://github.com/spring-projects/spring-boot/tree/master/spring-boot-samples
-
-
-
-
-
-
-
-
-
-
-
-
-
-
