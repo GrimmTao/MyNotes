@@ -24,7 +24,7 @@
 
 一个功能：浏览器发送hello请求，服务器接受请求并处理，响应Hello World字符串；
 
-### 2.1   创建一个maven工程；（jar）
+### 2.1   创建一个maven工程；
 
 ### 2.2   导入spring boot相关的依赖
 
@@ -1707,15 +1707,11 @@ public class HelloCommandLineRunner implements CommandLineRunner {
 }
 ```
 
+###  8.4  自定义starter
 
+1、这个场景需要使用到的依赖是什么？
 
-##  9  自定义starter
-
-starter：
-
-​	1、这个场景需要使用到的依赖是什么？
-
-​	2、如何编写自动配置
+2、如何编写自动配置
 
 ```java
 @Configuration  //指定这个类是一个配置类
@@ -1894,9 +1890,9 @@ public class HelloServiceAutoConfiguration {
 ```
 
 ------------------------------
-## 7   Web开发
+##  9  Web开发
 
-### 7.1   简介
+### 9.1   简介
 
 **1）创建SpringBoot应用，选中我们需要的模块；**
 
@@ -1913,7 +1909,7 @@ xxxxAutoConfiguration：帮我们给容器中自动配置组件；
 xxxxProperties:配置类来封装配置文件的内容；
 ```
 
-### 7.2   SpringBoot对静态资源的映射规则；
+### 9.2   SpringBoot对静态资源的映射规则；
 
 ```java
 @ConfigurationProperties(prefix = "spring.resources", ignoreUnknownFields = false)
@@ -1990,7 +1986,6 @@ public class ResourceProperties implements ResourceLoaderAware {
 ```
 
 
-
 1). 所有 /webjars/** ，都去 classpath:/META-INF/resources/webjars/ 找资源；==
 
 ​	webjars：以jar包的方式引入静态资源；
@@ -2022,16 +2017,16 @@ localhost:8080/webjars/jquery/3.3.1/jquery.js
 "/"：当前项目的根路径
 ```
 
-localhost:8080/abc ===  去静态资源文件夹里面找abc
+localhost:8080/abc   去静态资源文件夹里面找abc
 
-3). 欢迎页； 静态资源文件夹下的所有index.html页面；被"/**"映射；==
+3). 欢迎页； 静态资源文件夹下的所有index.html页面；被"/**"映射；
 
 ​	localhost:8080/   找index页面
 
-4). 所有的 **/favicon.ico  都是在静态资源文件下找；==
+4). 所有的 **/favicon.ico  都是在静态资源文件下找；
 
 
-### 7.3   全面接管SpringMVC
+### 9.3   全面接管SpringMVC
 
 SpringBoot对SpringMVC的自动配置不需要了，所有都是我们自己配置；所有的SpringMVC的自动配置都失效了
 
@@ -2088,7 +2083,7 @@ public class WebMvcAutoConfiguration {
 
 
 
-### 7.4  如何修改SpringBoot的默认配置
+### 9.4  如何修改SpringBoot的默认配置
 
 模式：
 
@@ -2099,7 +2094,7 @@ public class WebMvcAutoConfiguration {
 ​	3）、在SpringBoot中会有很多的xxxCustomizer帮助我们进行定制配置
 
 
-### 7.5   默认访问首页
+### 9.5   默认访问首页
 
 ```java
 
@@ -2131,12 +2126,10 @@ public class MyMvcConfig extends WebMvcConfigurerAdapter {
 
 ```
 
-### 7.6    国际化
+### 9.6    国际化
 
 1）、编写国际化配置文件；
-
 2）、使用ResourceBundleMessageSource管理国际化资源文件
-
 3）、在页面使用fmt:message取出国际化内容
 
 步骤：
@@ -2224,10 +2217,7 @@ public class MessageSourceAutoConfiguration {
 
 效果：根据浏览器语言设置的信息切换了国际化；
 
-
-原理：
-
-​	国际化Locale（区域信息对象）；LocaleResolver（获取区域信息对象）；
+原理：国际化Locale（区域信息对象）；LocaleResolver（获取区域信息对象）；
 
 ```java
 		@Bean
@@ -2277,18 +2267,15 @@ public class MyLocaleResolver implements LocaleResolver {
     }
 }
 
-
 ```
 
-
-
-### 7.7  错误处理机制
+### 9.7  错误处理机制
 
 **SpringBoot默认的错误处理机制**
 
 默认效果：
 
-​		1）、浏览器，返回一个默认的错误页面
+​1）、浏览器，返回一个默认的错误页面
 
 ![](https://note.youdao.com/yws/public/resource/d2df8f46cb515e690d5ce36ac14d844d/xmlnote/D892BAD310C342688A78F5E04C874B2D/1414)
 
@@ -2296,7 +2283,7 @@ public class MyLocaleResolver implements LocaleResolver {
 
 ![](https://note.youdao.com/yws/public/resource/d2df8f46cb515e690d5ce36ac14d844d/xmlnote/7594E4F8047B4B44B997683601B1B003/1421)
 
-​		2）、如果是其他客户端，默认响应一个json数据
+​2）、如果是其他客户端，默认响应一个json数据
 
 ![](https://note.youdao.com/yws/public/resource/d2df8f46cb515e690d5ce36ac14d844d/xmlnote/35060512072F40AF92E0470AA739A425/1426)
 
@@ -2304,11 +2291,11 @@ public class MyLocaleResolver implements LocaleResolver {
 
 原理：
 
-​	可以参照ErrorMvcAutoConfiguration；错误处理的自动配置；
+可以参照ErrorMvcAutoConfiguration；错误处理的自动配置；
 
-  	给容器中添加了以下组件
+ 给容器中添加了以下组件
 
-​	1、DefaultErrorAttributes：
+​1、DefaultErrorAttributes：
 
 ```java
 帮我们在页面共享信息；
@@ -2324,7 +2311,7 @@ public class MyLocaleResolver implements LocaleResolver {
 	}
 ```
 
-​	2、BasicErrorController：处理默认/error请求
+2、BasicErrorController：处理默认/error请求
 
 ```java
 @Controller
@@ -2354,15 +2341,14 @@ public class BasicErrorController extends AbstractErrorController {
 	}
 ```
 
-​	3、ErrorPageCustomizer：
+3、ErrorPageCustomizer：
 
 ```java
 	@Value("${error.path:/error}")
 	private String path = "/error";  系统出现错误以后来到error请求进行处理；（web.xml注册的错误页面规则）
 ```
 
-
-​	4、DefaultErrorViewResolver：
+4、DefaultErrorViewResolver：
 
 ```java
 @Override
@@ -2391,12 +2377,11 @@ public class BasicErrorController extends AbstractErrorController {
 	}
 ```
 
+步骤：
 
-​	步骤：
+​一但系统出现4xx或者5xx之类的错误；ErrorPageCustomizer就会生效（定制错误的响应规则）；就会来到/error请求；就会被**BasicErrorController**处理；
 
-​		一但系统出现4xx或者5xx之类的错误；ErrorPageCustomizer就会生效（定制错误的响应规则）；就会来到/error请求；就会被**BasicErrorController**处理；
-
-​		1）响应页面；去哪个页面是由**DefaultErrorViewResolver**解析得到的；
+​1）响应页面；去哪个页面是由**DefaultErrorViewResolver**解析得到的；
 
 ```java
 protected ModelAndView resolveErrorView(HttpServletRequest request,
@@ -2411,38 +2396,26 @@ protected ModelAndView resolveErrorView(HttpServletRequest request,
    return null;
 }
 ```
+2）、定制错误响应、页面：
 
-### 2）、如果定制错误响应：
+有模板引擎的情况下；error/状态码;** 【将错误页面命名为  错误状态码.html 放在模板引擎文件夹里面的 error文件夹下】，发生此状态码的错误就会来到  对应的页面；
 
-#### 	**1）、如何定制错误的页面；**
+​我们可以使用4xx和5xx作为错误页面的文件名来匹配这种类型的所有错误，精确优先（优先寻找精确的状态码.html）；		
 
-​			**1）、有模板引擎的情况下；error/状态码;** 【将错误页面命名为  错误状态码.html 放在模板引擎文件夹里面的 error文件夹下】，发生此状态码的错误就会来到  对应的页面；
+​页面能获取的信息：
+timestamp：时间戳
+status：状态码
+error：错误提示
+exception：异常对象
+message：异常消息
+errors：JSR303数据校验的错误都在这里
 
-​			我们可以使用4xx和5xx作为错误页面的文件名来匹配这种类型的所有错误，精确优先（优先寻找精确的状态码.html）；		
+​没有模板引擎（模板引擎找不到这个错误页面），静态资源文件夹下找；
 
-​			页面能获取的信息；
-
-​				timestamp：时间戳
-
-​				status：状态码
-
-​				error：错误提示
-
-​				exception：异常对象
-
-​				message：异常消息
-
-​				errors：JSR303数据校验的错误都在这里
-
-​			2）、没有模板引擎（模板引擎找不到这个错误页面），静态资源文件夹下找；
-
-​			3）、以上都没有错误页面，就是默认来到SpringBoot默认的错误提示页面；
+以上都没有错误页面，就是默认来到SpringBoot默认的错误提示页面；
 
 
-
-#### 	2）、如何定制错误的json数据；
-
-​		1）、自定义异常处理&返回定制json数据；
+3）、定制错误的json数据；
 
 ```java
 @ControllerAdvice
@@ -2460,9 +2433,7 @@ public class MyExceptionHandler {
 //没有自适应效果...
 ```
 
-
-
-​		2）、转发到/error进行自适应响应效果处理
+转发到/error进行自适应响应效果处理
 
 ```java
  @ExceptionHandler(UserNotExistException.class)
@@ -2481,15 +2452,15 @@ public class MyExceptionHandler {
     }
 ```
 
-#### 	3）、将我们的定制数据携带出去；
+将我们的定制数据携带出去；
 
 出现错误以后，会来到/error请求，会被BasicErrorController处理，响应出去可以获取的数据是由getErrorAttributes得到的（是AbstractErrorController（ErrorController）规定的方法）；
 
-​	1、完全来编写一个ErrorController的实现类【或者是编写AbstractErrorController的子类】，放在容器中；
+​1、完全来编写一个ErrorController的实现类【或者是编写AbstractErrorController的子类】，放在容器中；
 
-​	2、页面上能用的数据，或者是json返回能用的数据都是通过errorAttributes.getErrorAttributes得到；
+​2、页面上能用的数据，或者是json返回能用的数据都是通过errorAttributes.getErrorAttributes得到；
 
-​			容器中DefaultErrorAttributes.getErrorAttributes()；默认进行数据处理的；
+​容器中DefaultErrorAttributes.getErrorAttributes()；默认进行数据处理的；
 
 自定义ErrorAttributes
 
@@ -2513,17 +2484,14 @@ public class MyErrorAttributes extends DefaultErrorAttributes {
 
 
 
-## 8、配置嵌入式Servlet容器
+## 10   配置嵌入式Servlet容器
 
 SpringBoot默认使用Tomcat作为嵌入式的Servlet容器；
 
 ![](https://note.youdao.com/yws/public/resource/d2df8f46cb515e690d5ce36ac14d844d/xmlnote/0B4EA3D3C3D1450CA79E668A028085D7/1407)
 
 
-
-问题？
-
-### 1）、如何定制和修改Servlet容器的相关配置；
+###  10.1 定制和修改Servlet容器的相关配置；
 
 1、修改和server有关的配置（ServerProperties【也是EmbeddedServletContainerCustomizer】）；
 
@@ -2555,7 +2523,7 @@ public EmbeddedServletContainerCustomizer embeddedServletContainerCustomizer(){
 }
 ```
 
-### 2）、注册Servlet三大组件【Servlet、Filter、Listener】
+### 10.2  注册Servlet三大组件【Servlet、Filter、Listener】
 
 由于SpringBoot默认是以jar包的方式启动嵌入式的Servlet容器来启动SpringBoot的web应用，没有web.xml文件。
 
@@ -2595,8 +2563,6 @@ public ServletListenerRegistrationBean myListener(){
 }
 ```
 
-
-
 SpringBoot帮我们自动SpringMVC的时候，自动的注册SpringMVC的前端控制器；DIspatcherServlet；
 
 DispatcherServletAutoConfiguration中：
@@ -2622,9 +2588,7 @@ public ServletRegistrationBean dispatcherServletRegistration(
 
 ```
 
-2）、SpringBoot能不能支持其他的Servlet容器；
-
-### 3）、替换为其他嵌入式Servlet容器
+### 10.3   替换为其他嵌入式Servlet容器
 
 ![](https://note.youdao.com/yws/public/resource/d2df8f46cb515e690d5ce36ac14d844d/xmlnote/EC5A82FD220D4D7EB8175B9D12BC4744/1419)
 
@@ -2684,9 +2648,7 @@ Undertow
 </dependency>
 ```
 
-### 4）、嵌入式Servlet容器自动配置原理；
-
-
+### 10.4   嵌入式Servlet容器自动配置原理；
 
 EmbeddedServletContainerAutoConfiguration：嵌入式的Servlet容器自动配置？
 
@@ -2709,7 +2671,6 @@ public class EmbeddedServletContainerAutoConfiguration {
 		public TomcatEmbeddedServletContainerFactory tomcatEmbeddedServletContainerFactory() {
 			return new TomcatEmbeddedServletContainerFactory();
 		}
-
 	}
     
     /**
@@ -2725,7 +2686,6 @@ public class EmbeddedServletContainerAutoConfiguration {
 		public JettyEmbeddedServletContainerFactory jettyEmbeddedServletContainerFactory() {
 			return new JettyEmbeddedServletContainerFactory();
 		}
-
 	}
 
 	/**
@@ -2740,7 +2700,6 @@ public class EmbeddedServletContainerAutoConfiguration {
 		public UndertowEmbeddedServletContainerFactory undertowEmbeddedServletContainerFactory() {
 			return new UndertowEmbeddedServletContainerFactory();
 		}
-
 	}
 ```
 
@@ -2752,7 +2711,6 @@ public interface EmbeddedServletContainerFactory {
    //获取嵌入式的Servlet容器
    EmbeddedServletContainer getEmbeddedServletContainer(
          ServletContextInitializer... initializers);
-
 }
 ```
 
@@ -2761,7 +2719,6 @@ public interface EmbeddedServletContainerFactory {
 2）、EmbeddedServletContainer：（嵌入式的Servlet容器）
 
 ![](https://note.youdao.com/yws/public/resource/d2df8f46cb515e690d5ce36ac14d844d/xmlnote/DB70E90EA1874713A65D8F5602861AD8/1425)
-
 
 
 3）、以**TomcatEmbeddedServletContainerFactory**为例
@@ -2798,7 +2755,6 @@ public EmbeddedServletContainer getEmbeddedServletContainer(
 ```
 ServerProperties、EmbeddedServletContainerCustomizer
 ```
-
 
 
 **EmbeddedServletContainerCustomizer**：定制器帮我们修改了Servlet容器的配置？
@@ -2859,7 +2815,7 @@ ServerProperties也是定制器
 
 
 
-###5）、嵌入式Servlet容器启动原理；
+###   10.5 嵌入式Servlet容器启动原理；
 
 什么时候创建嵌入式的Servlet容器工厂？什么时候获取嵌入式的Servlet容器并启动Tomcat；
 
@@ -2957,7 +2913,7 @@ EmbeddedServletContainerFactory containerFactory = getEmbeddedServletContainerFa
 
 
 
-## 9、使用外置的Servlet容器
+###   10.6   使用外置的Servlet容器
 
 嵌入式Servlet容器：应用打成可执行的jar
 
@@ -2969,12 +2925,9 @@ EmbeddedServletContainerFactory containerFactory = getEmbeddedServletContainerFa
 
 外置的Servlet容器：外面安装Tomcat---应用war包的方式打包；
 
-### 步骤
-
+ 步骤
 1）、必须创建一个war项目；（利用idea创建好目录结构）
-
 2）、将嵌入式的Tomcat指定为provided；
-
 ```xml
 <dependency>
    <groupId>org.springframework.boot</groupId>
@@ -2982,7 +2935,6 @@ EmbeddedServletContainerFactory containerFactory = getEmbeddedServletContainerFa
    <scope>provided</scope>
 </dependency>
 ```
-
 3）、必须编写一个**SpringBootServletInitializer**的子类，并调用configure方法
 
 ```java
@@ -2996,30 +2948,23 @@ public class ServletInitializer extends SpringBootServletInitializer {
 
 }
 ```
-
 4）、启动服务器就可以使用；
 
-### 原理
+原理
 
 jar包：执行SpringBoot主类的main方法，启动ioc容器，创建嵌入式的Servlet容器；
 
 war包：启动服务器，**服务器启动SpringBoot应用**【SpringBootServletInitializer】，启动ioc容器；
 
-
-
 servlet3.0（Spring注解版）：
-
-8.2.4 Shared libraries / runtimes pluggability：
-
+Shared libraries / runtimes pluggability：
 规则：
 
-​	1）、服务器启动（web应用启动）会创建当前web应用里面每一个jar包里面ServletContainerInitializer实例：
+1）、服务器启动（web应用启动）会创建当前web应用里面每一个jar包里面ServletContainerInitializer实例：
 
-​	2）、ServletContainerInitializer的实现放在jar包的META-INF/services文件夹下，有一个名为javax.servlet.ServletContainerInitializer的文件，内容就是ServletContainerInitializer的实现类的全类名
+2）、ServletContainerInitializer的实现放在jar包的META-INF/services文件夹下，有一个名为javax.servlet.ServletContainerInitializer的文件，内容就是ServletContainerInitializer的实现类的全类名
 
-​	3）、还可以使用@HandlesTypes，在应用启动的时候加载我们感兴趣的类；
-
-
+3）、还可以使用@HandlesTypes，在应用启动的时候加载我们感兴趣的类；
 
 流程：
 
@@ -3124,9 +3069,9 @@ public ConfigurableApplicationContext run(String... args) {
 
 
 
-# 五、Docker
+##   11  Docker
 
-## 1、简介
+###    11.1  简介
 
 **Docker**是一个开源的应用容器引擎；是一个轻量级容器技术；
 
@@ -3136,11 +3081,9 @@ Docker支持将软件编译成一个镜像；然后在镜像中各种软件做�
 
 ![](https://note.youdao.com/yws/public/resource/d2df8f46cb515e690d5ce36ac14d844d/xmlnote/37B1FD5A41EB4887B789F8C45BEC29F6/1408)
 
-
-
 ![](https://note.youdao.com/yws/public/resource/d2df8f46cb515e690d5ce36ac14d844d/xmlnote/0F5761650FF1446AA20FEFC212939AA2/1401)
 
-## 2、核心概念
+###   11.2  核心概念
 
 docker主机(Host)：安装了Docker程序的机器（Docker直接安装在操作系统之上）；
 
@@ -3164,37 +3107,37 @@ docker容器(Container)：镜像启动后的实例称为一个容器；容器是
 
 4）、对容器的启动停止就是对软件的启动停止；
 
-## 3、安装Docker
+###   11.3  安装Docker
 
-#### 1）、安装linux虚拟机
+####  11.3.1 安装linux虚拟机
 
-​	1）、VMWare、VirtualBox（安装）；
+1）、VMWare、VirtualBox（安装）；
 
-​	2）、导入虚拟机文件centos7-atguigu.ova；
+2）、导入虚拟机文件centos7-atguigu.ova；
 
-​	3）、双击启动linux虚拟机;使用  root/ 123456登陆
+3）、双击启动linux虚拟机;使用  root/ 123456登陆
 
-​	4）、使用客户端连接linux服务器进行命令操作；
+4）、使用客户端连接linux服务器进行命令操作；
 
-​	5）、设置虚拟机网络；
+​5）、设置虚拟机网络；
 
 ​		桥接网络===选好网卡====接入网线；
 
-​	6）、设置好网络以后使用命令重启虚拟机的网络
+6）、设置好网络以后使用命令重启虚拟机的网络
 
 ```shell
 service network restart
 ```
 
-​	7）、查看linux的ip地址
+7）、查看linux的ip地址
 
 ```shell
 ip addr
 ```
 
-​	8）、使用客户端连接linux；
+8）、使用客户端连接linux；
 
-#### 2）、在linux虚拟机上安装docker
+####  11.3.2  在linux虚拟机上安装docker
 
 步骤：
 
@@ -3215,9 +3158,9 @@ Created symlink from /etc/systemd/system/multi-user.target.wants/docker.service 
 systemctl stop docker
 ```
 
-## 4、Docker常用命令&操作
+###   11.4  Docker常用命令&操作
 
-### 1）、镜像操作
+####  11.4.1  镜像操作
 
 | 操作 | 命令                                            | 说明                                                     |
 | ---- | ----------------------------------------------- | -------------------------------------------------------- |
@@ -3228,12 +3171,10 @@ systemctl stop docker
 
 https://hub.docker.com/
 
-### 2）、容器操作
+####   11.4.2  容器操作
 
 软件镜像（QQ安装程序）----运行镜像----产生一个容器（正在运行的软件，运行的QQ）；
-
 步骤：
-
 ````shell
 1、搜索镜像
 [root@localhost ~]# docker search tomcat
@@ -3268,15 +3209,11 @@ https://docs.docker.com/engine/reference/commandline/docker/
 
 ````
 
-
-
-### 3）、安装MySQL示例
+####  11.4.3  安装MySQL示例
 
 ```shell
 docker pull mysql
 ```
-
-
 
 错误的启动
 
@@ -3320,8 +3257,6 @@ CONTAINER ID        IMAGE               COMMAND                  CREATED        
 ad10e4bc5c6a        mysql               "docker-entrypoint.sh"   4 seconds ago       Up 2 seconds        0.0.0.0:3306->3306/tcp   mysql02
 ```
 
-
-
 几个其他的高级操作
 
 ```
@@ -3332,8 +3267,7 @@ docker run --name mysql03 -v /conf/mysql:/etc/mysql/conf.d -e MYSQL_ROOT_PASSWOR
 docker run --name some-mysql -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql:tag --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 指定mysql的一些配置参数
 ```
-
-
+---------------------------
 # 更多SpringBoot整合示例
 
 https://github.com/spring-projects/spring-boot/tree/master/spring-boot-samples
